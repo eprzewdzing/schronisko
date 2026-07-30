@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/providers/animal_provider.dart';
 import 'package:inzynierka/screens/animal_detail_screen.dart';
+import 'package:inzynierka/screens/animal_form_screen.dart';
 import 'package:inzynierka/widgets/animal_card.dart';
 
 class AnimalListScreen extends ConsumerWidget {
@@ -13,6 +14,17 @@ class AnimalListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Zwierzęta')),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AnimalFormScreen(),
+            ),
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
       body: animalsAsync.when(
         data: (animals) {
           if (animals.isEmpty) {

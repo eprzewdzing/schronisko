@@ -13,6 +13,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_riverpod: ^2.5.1
   supabase_flutter: ^2.6.0
+  image_picker: ^1.1.2
 
 
 dev_dependencies:
