@@ -1,3 +1,8 @@
+const Map<String, String> speciesLabels = {
+  'dog': 'Pies',
+  'cat': 'Kot',
+};
+
 const Map<String, String> genderLabels = {
   'male': 'Samiec',
   'female': 'Samica',

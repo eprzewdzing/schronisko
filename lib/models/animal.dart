@@ -13,6 +13,7 @@ class Animal {
   final String? healthNotes;
   final List<String> traits;
   final String description;
+  final String? kennelId;
 
   Animal({
     required this.id,
@@ -29,6 +30,7 @@ class Animal {
     this.healthNotes,
     required this.traits,
     required this.description,
+    this.kennelId,
   });
 
   factory Animal.fromJson(Map<String, dynamic> json) {
@@ -47,6 +49,7 @@ class Animal {
       healthNotes: json['health_notes'] as String?,
       traits: List<String>.from(json['traits'] as List),
       description: json['description'] as String,
+      kennelId: json['kennel_id'] as String?,
     );
   }
 
@@ -66,6 +69,7 @@ class Animal {
       'health_notes': healthNotes,
       'traits': traits,
       'description': description,
+      'kennel_id': kennelId,
     };
   }
 }

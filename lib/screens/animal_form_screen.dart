@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:inzynierka/constants/animal_options.dart';
 import 'package:inzynierka/providers/animal_provider.dart';
+import 'package:inzynierka/providers/kennel_provider.dart';
 
 class AnimalFormScreen extends ConsumerStatefulWidget {
   const AnimalFormScreen({super.key});
@@ -17,16 +18,17 @@ class _AnimalFormScreenState extends ConsumerState<AnimalFormScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final _nameController = TextEditingController();
-  final _speciesController = TextEditingController();
   final _ageController = TextEditingController();
   final _healthNotesController = TextEditingController();
   final _descriptionController = TextEditingController();
 
+  String? _species;
   String? _gender;
   String? _size;
   String? _intakeType;
   String? _healthStatus;
   String? _status;
+  String? _kennelId;
   DateTime? _intakeDate;
   final Set<String> _selectedTraits = {};
   File? _pickedImage;
@@ -35,7 +37,6 @@ class _AnimalFormScreenState extends ConsumerState<AnimalFormScreen> {
   @override
   void dispose() {
     _nameController.dispose();
-    _speciesController.dispose();
     _ageController.dispose();
     _healthNotesController.dispose();
     _descriptionController.dispose();
@@ -69,6 +70,7 @@ class _AnimalFormScreenState extends ConsumerState<AnimalFormScreen> {
     final isFormValid = _formKey.currentState!.validate();
 
     if (!isFormValid ||
+        _species == null ||
         _gender == null ||
         _size == null ||
         _intakeType == null ||
@@ -94,7 +96,7 @@ class _AnimalFormScreenState extends ConsumerState<AnimalFormScreen> {
 
       await service.addAnimal({
         'name': _nameController.text,
-        'species': _speciesController.text,
+        'species': _species,
         'status': _status,
         'age': int.parse(_ageController.text),
         'gender': _gender,
@@ -108,6 +110,7 @@ class _AnimalFormScreenState extends ConsumerState<AnimalFormScreen> {
             : _healthNotesController.text,
         'traits': _selectedTraits.toList(),
         'description': _descriptionController.text,
+        'kennel_id': _kennelId,
       });
 
       ref.invalidate(animalListProvider);
@@ -162,11 +165,14 @@ class _AnimalFormScreenState extends ConsumerState<AnimalFormScreen> {
               (value == null || value.isEmpty) ? 'Podaj imię' : null,
             ),
             const SizedBox(height: 12),
-            TextFormField(
-              controller: _speciesController,
+            DropdownButtonFormField<String>(
+              initialValue: _species,
               decoration: const InputDecoration(labelText: 'Gatunek'),
-              validator: (value) =>
-              (value == null || value.isEmpty) ? 'Podaj gatunek' : null,
+              items: speciesLabels.entries
+                  .map((e) =>
+                  DropdownMenuItem(value: e.key, child: Text(e.value)))
+                  .toList(),
+              onChanged: (value) => setState(() => _species = value),
             ),
             const SizedBox(height: 12),
             TextFormField(
@@ -247,6 +253,37 @@ class _AnimalFormScreenState extends ConsumerState<AnimalFormScreen> {
                   DropdownMenuItem(value: e.key, child: Text(e.value)))
                   .toList(),
               onChanged: (value) => setState(() => _status = value),
+            ),
+            const SizedBox(height: 12),
+            Consumer(
+              builder: (context, ref, _) {
+                final kennelsAsync = ref.watch(kennelListProvider);
+                return kennelsAsync.when(
+                  data: (kennels) {
+                    return DropdownButtonFormField<String?>(
+                      initialValue: _kennelId,
+                      decoration:
+                      const InputDecoration(labelText: 'Boks (opcjonalnie)'),
+                      items: [
+                        const DropdownMenuItem<String?>(
+                          value: null,
+                          child: Text('Brak'),
+                        ),
+                        ...kennels.map(
+                              (kennel) => DropdownMenuItem<String?>(
+                            value: kennel.id,
+                            child: Text(kennel.number),
+                          ),
+                        ),
+                      ],
+                      onChanged: (value) => setState(() => _kennelId = value),
+                    );
+                  },
+                  loading: () => const LinearProgressIndicator(),
+                  error: (error, stackTrace) =>
+                      Text('Błąd podczas pobierania boksów: $error'),
+                );
+              },
             ),
             const SizedBox(height: 16),
             Text('Cechy', style: Theme.of(context).textTheme.titleMedium),
