@@ -15,4 +15,15 @@ class PersonService {
   Future<void> addPerson(Map<String, dynamic> data) async {
     await _client.from('Person').insert(data);
   }
+
+  Future<Person?> getPersonById(String id) async {
+    final response = await _client
+        .from('Person')
+        .select()
+        .eq('id', id)
+        .maybeSingle();
+
+    if (response == null) return null;
+    return Person.fromJson(response);
+  }
 }
