@@ -7,7 +7,7 @@ class AnimalService {
   final SupabaseClient _client = Supabase.instance.client;
 
   Future<List<Animal>> getAnimals() async {
-    final response = await _client.from('Animal').select();
+    final response = await _client.from('Animal').select('*, Kennel(number)');
 
     return (response as List)
         .map((json) => Animal.fromJson(json as Map<String, dynamic>))
