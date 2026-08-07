@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/models/animal.dart';
 import 'package:inzynierka/providers/animal_provider.dart';
 import 'package:inzynierka/providers/kennel_provider.dart';
-import 'package:inzynierka/widgets/kennel_card.dart';
+import 'package:inzynierka/widgets/staff/staff_kennel_card.dart';
 
-class KennelListScreen extends ConsumerWidget {
-  const KennelListScreen({super.key});
+class StaffKennelListScreen extends ConsumerWidget {
+  const StaffKennelListScreen({super.key});
 
   Animal? _findOccupant(List<Animal> animals, String kennelId) {
     for (final animal in animals) {
@@ -35,7 +35,7 @@ class KennelListScreen extends ConsumerWidget {
                 itemBuilder: (context, index) {
                   final kennel = kennels[index];
                   final occupant = _findOccupant(animals, kennel.id);
-                  return KennelCard(kennel: kennel, occupant: occupant);
+                  return StaffKennelCard(kennel: kennel, occupant: occupant);
                 },
               );
             },

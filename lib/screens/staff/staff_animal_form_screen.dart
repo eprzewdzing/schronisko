@@ -3,18 +3,19 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:inzynierka/constants/animal_options.dart';
 import 'package:inzynierka/providers/animal_provider.dart';
 import 'package:inzynierka/providers/kennel_provider.dart';
 
-class AnimalFormScreen extends ConsumerStatefulWidget {
-  const AnimalFormScreen({super.key});
+class StaffAnimalFormScreen extends ConsumerStatefulWidget {
+  const StaffAnimalFormScreen({super.key});
 
   @override
-  ConsumerState<AnimalFormScreen> createState() => _AnimalFormScreenState();
+  ConsumerState<StaffAnimalFormScreen> createState() => _StaffAnimalFormScreenState();
 }
 
-class _AnimalFormScreenState extends ConsumerState<AnimalFormScreen> {
+class _StaffAnimalFormScreenState extends ConsumerState<StaffAnimalFormScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final _nameController = TextEditingController();
@@ -29,6 +30,7 @@ class _AnimalFormScreenState extends ConsumerState<AnimalFormScreen> {
   String? _healthStatus;
   String? _status;
   String? _kennelId;
+  String _ageUnit = 'months';
   DateTime? _intakeDate;
   final Set<String> _selectedTraits = {};
   File? _pickedImage;
@@ -43,11 +45,92 @@ class _AnimalFormScreenState extends ConsumerState<AnimalFormScreen> {
     super.dispose();
   }
 
+  Future<void> _openTraitsPicker() async {
+    final tempSelected = Set<String>.from(_selectedTraits);
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return DraggableScrollableSheet(
+              initialChildSize: 0.6,
+              minChildSize: 0.3,
+              maxChildSize: 0.9,
+              expand: false,
+              builder: (context, scrollController) {
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text('Cechy', style: Theme.of(context).textTheme.titleMedium),
+                      const SizedBox(height: 8),
+                      Expanded(
+                        child: ListView(
+                          controller: scrollController,
+                          children: animalTraits.entries.map((e) {
+                            return CheckboxListTile(
+                              title: Text(e.value),
+                              value: tempSelected.contains(e.key),
+                              onChanged: (checked) {
+                                setModalState(() {
+                                  if (checked == true) {
+                                    tempSelected.add(e.key);
+                                  } else {
+                                    tempSelected.remove(e.key);
+                                  }
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _selectedTraits
+                              ..clear()
+                              ..addAll(tempSelected);
+                          });
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Zastosuj'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
   Future<void> _pickImage() async {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (picked != null) {
+    if (picked == null) return;
+
+    final cropped = await ImageCropper().cropImage(
+      sourcePath: picked.path,
+      aspectRatio: const CropAspectRatio(ratioX: 4, ratioY: 3),
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Dopasuj zdjęcie',
+          lockAspectRatio: true,
+        ),
+        IOSUiSettings(
+          title: 'Dopasuj zdjęcie',
+          aspectRatioLockEnabled: true,
+        ),
+      ],
+    );
+
+    if (cropped != null) {
       setState(() {
-        _pickedImage = File(picked.path);
+        _pickedImage = File(cropped.path);
       });
     }
   }
@@ -94,11 +177,14 @@ class _AnimalFormScreenState extends ConsumerState<AnimalFormScreen> {
       final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
       final photoUrl = await service.uploadPhoto(_pickedImage!, fileName);
 
+      final enteredAge = int.parse(_ageController.text);
+      final ageInMonths = _ageUnit == 'years' ? enteredAge * 12 : enteredAge;
+
       await service.addAnimal({
         'name': _nameController.text,
         'species': _species,
         'status': _status,
-        'age': int.parse(_ageController.text),
+        'age': ageInMonths,
         'gender': _gender,
         'size': _size,
         'photo_url': photoUrl,
@@ -145,7 +231,7 @@ class _AnimalFormScreenState extends ConsumerState<AnimalFormScreen> {
             GestureDetector(
               onTap: _pickImage,
               child: AspectRatio(
-                aspectRatio: 16 / 9,
+                aspectRatio: 4 / 3,
                 child: Container(
                   color: Colors.grey[300],
                   child: _pickedImage != null
@@ -175,16 +261,41 @@ class _AnimalFormScreenState extends ConsumerState<AnimalFormScreen> {
               onChanged: (value) => setState(() => _species = value),
             ),
             const SizedBox(height: 12),
-            TextFormField(
-              controller: _ageController,
-              decoration:
-              const InputDecoration(labelText: 'Wiek (w miesiącach)'),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) return 'Podaj wiek';
-                if (int.tryParse(value) == null) return 'Podaj liczbę';
-                return null;
-              },
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _ageController,
+                    decoration: InputDecoration(
+                      labelText: 'Wiek',
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return 'Podaj wiek';
+                      if (int.tryParse(value) == null) return 'Podaj liczbę';
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 130,
+                  child: DropdownButtonFormField<String>(
+                    initialValue: _ageUnit,
+                    decoration: const InputDecoration(labelText: 'Jednostka'),
+                    items: const [
+                      DropdownMenuItem(value: 'months', child: Text('Miesiące')),
+                      DropdownMenuItem(value: 'years', child: Text('Lata')),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _ageUnit = value);
+                      }
+                    },
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
@@ -263,7 +374,7 @@ class _AnimalFormScreenState extends ConsumerState<AnimalFormScreen> {
                     return DropdownButtonFormField<String?>(
                       initialValue: _kennelId,
                       decoration:
-                      const InputDecoration(labelText: 'Boks (opcjonalnie)'),
+                      const InputDecoration(labelText: 'Boks'),
                       items: [
                         const DropdownMenuItem<String?>(
                           value: null,
@@ -287,26 +398,31 @@ class _AnimalFormScreenState extends ConsumerState<AnimalFormScreen> {
             ),
             const SizedBox(height: 16),
             Text('Cechy', style: Theme.of(context).textTheme.titleMedium),
-            Wrap(
-              spacing: 8,
-              children: animalTraits.entries.map((e) {
-                final selected = _selectedTraits.contains(e.key);
-                return FilterChip(
-                  label: Text(e.value),
-                  selected: selected,
-                  onSelected: (isSelected) {
-                    setState(() {
-                      if (isSelected) {
-                        _selectedTraits.add(e.key);
-                      } else {
-                        _selectedTraits.remove(e.key);
-                      }
-                    });
-                  },
-                );
-              }).toList(),
+            const SizedBox(height: 8),
+            InkWell(
+              onTap: _openTraitsPicker,
+              child: InputDecorator(
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _selectedTraits.isEmpty
+                            ? 'Wybierz cechy (opcjonalnie)'
+                            : _selectedTraits
+                            .map((key) => animalTraits[key] ?? key)
+                            .join(', '),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const Icon(Icons.arrow_drop_down),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             TextFormField(
               controller: _descriptionController,
               decoration: const InputDecoration(labelText: 'Opis'),

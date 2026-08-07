@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:inzynierka/models/animal.dart';
+import 'package:inzynierka/utils/age_formatter.dart';
 
-class AnimalDetailScreen extends StatelessWidget {
+class StaffAnimalDetailScreen extends StatelessWidget {
   final Animal animal;
 
-  const AnimalDetailScreen({super.key, required this.animal});
+  const StaffAnimalDetailScreen({super.key, required this.animal});
 
   @override
   Widget build(BuildContext context) {
@@ -16,12 +17,34 @@ class AnimalDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AspectRatio(
-              aspectRatio: 16 / 9,
-              child: Container(
+              aspectRatio: 4 / 3,
+              child: animal.photoUrl.isEmpty
+                  ? Container(
                 color: Colors.grey[300],
                 child: const Center(
                   child: Icon(Icons.pets, size: 64, color: Colors.grey),
                 ),
+              )
+                  : Image.network(
+                animal.photoUrl,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, progress) {
+                  if (progress == null) return child;
+                  return Container(
+                    color: Colors.grey[300],
+                    child: const Center(
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: Colors.grey[300],
+                    child: const Center(
+                      child: Icon(Icons.pets, size: 64, color: Colors.grey),
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(height: 16),
@@ -32,7 +55,7 @@ class AnimalDetailScreen extends StatelessWidget {
                   animal.name,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
-                Text('${animal.age} mies.'),
+                Text(formatAge(animal.age)),
                 Text(animal.gender),
               ],
             ),

@@ -3,11 +3,11 @@ import 'package:inzynierka/constants/kennel_options.dart';
 import 'package:inzynierka/models/animal.dart';
 import 'package:inzynierka/models/kennel.dart';
 
-class KennelCard extends StatelessWidget {
+class StaffKennelCard extends StatelessWidget {
   final Kennel kennel;
   final Animal? occupant;
 
-  const KennelCard({super.key, required this.kennel, this.occupant});
+  const StaffKennelCard({super.key, required this.kennel, this.occupant});
 
   @override
   Widget build(BuildContext context) {
