@@ -5,11 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:inzynierka/constants/animal_options.dart';
+import 'package:inzynierka/models/animal.dart';
 import 'package:inzynierka/providers/animal_provider.dart';
 import 'package:inzynierka/providers/kennel_provider.dart';
 
 class StaffAnimalFormScreen extends ConsumerStatefulWidget {
-  const StaffAnimalFormScreen({super.key});
+  final Animal? animal;
+
+  const StaffAnimalFormScreen({super.key, this.animal});
 
   @override
   ConsumerState<StaffAnimalFormScreen> createState() => _StaffAnimalFormScreenState();
@@ -35,6 +38,31 @@ class _StaffAnimalFormScreenState extends ConsumerState<StaffAnimalFormScreen> {
   final Set<String> _selectedTraits = {};
   File? _pickedImage;
   bool _isSubmitting = false;
+
+  bool get _isEditing => widget.animal != null;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final animal = widget.animal;
+    if (animal == null) return;
+
+    _nameController.text = animal.name;
+    _ageController.text = animal.age.toString();
+    _healthNotesController.text = animal.healthNotes ?? '';
+    _descriptionController.text = animal.description ?? '';
+
+    _species = animal.species;
+    _gender = animal.gender;
+    _size = animal.size;
+    _intakeType = animal.intakeType;
+    _healthStatus = animal.healthStatus;
+    _status = animal.status;
+    _kennelId = animal.kennelId;
+    _intakeDate = animal.intakeDate;
+    _selectedTraits.addAll(animal.traits);
+  }
 
   @override
   void dispose() {
@@ -138,7 +166,7 @@ class _StaffAnimalFormScreenState extends ConsumerState<StaffAnimalFormScreen> {
   Future<void> _pickIntakeDate() async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: _intakeDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
     );
@@ -159,8 +187,7 @@ class _StaffAnimalFormScreenState extends ConsumerState<StaffAnimalFormScreen> {
         _intakeType == null ||
         _healthStatus == null ||
         _status == null ||
-        _intakeDate == null ||
-        _pickedImage == null) {
+        _intakeDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Uzupełnij wszystkie pola')),
       );
@@ -174,14 +201,23 @@ class _StaffAnimalFormScreenState extends ConsumerState<StaffAnimalFormScreen> {
     final service = ref.read(animalServiceProvider);
 
     try {
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final photoUrl = await service.uploadPhoto(_pickedImage!, fileName);
+      String photoUrl = widget.animal?.photoUrl ?? '';
+
+      if (_pickedImage != null) {
+        final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+        photoUrl = await service.uploadPhoto(_pickedImage!, fileName);
+
+        final oldPhotoUrl = widget.animal?.photoUrl;
+        if (oldPhotoUrl != null && oldPhotoUrl.isNotEmpty) {
+          await service.deletePhoto(oldPhotoUrl);
+        }
+      }
 
       final enteredAge = int.parse(_ageController.text);
       final ageInMonths = _ageUnit == 'years' ? enteredAge * 12 : enteredAge;
 
-      await service.addAnimal({
-        'name': _nameController.text,
+      final data = {
+        'name': _nameController.text.trim(),
         'species': _species,
         'status': _status,
         'age': ageInMonths,
@@ -195,14 +231,60 @@ class _StaffAnimalFormScreenState extends ConsumerState<StaffAnimalFormScreen> {
             ? null
             : _healthNotesController.text,
         'traits': _selectedTraits.toList(),
-        'description': _descriptionController.text,
+        'description': _descriptionController.text.isEmpty
+            ? null
+            : _descriptionController.text,
         'kennel_id': _kennelId,
-      });
+      };
+
+      if (_isEditing) {
+        await service.updateAnimal(widget.animal!.id, data);
+      } else {
+        await service.addAnimal(data);
+      }
 
       ref.invalidate(animalListProvider);
 
       if (mounted) {
-        Navigator.pop(context);
+        if (_isEditing) {
+          final kennels = ref.read(kennelListProvider).valueOrNull;
+          String? kennelNumber;
+          if (_kennelId != null && kennels != null) {
+            for (final kennel in kennels) {
+              if (kennel.id == _kennelId) {
+                kennelNumber = kennel.number;
+                break;
+              }
+            }
+          }
+
+          final updatedAnimal = Animal(
+            id: widget.animal!.id,
+            name: _nameController.text.trim(),
+            species: _species!,
+            status: _status!,
+            age: ageInMonths,
+            gender: _gender!,
+            size: _size!,
+            photoUrl: photoUrl,
+            intakeType: _intakeType!,
+            intakeDate: _intakeDate!,
+            healthStatus: _healthStatus!,
+            healthNotes: _healthNotesController.text.isEmpty
+                ? null
+                : _healthNotesController.text,
+            traits: _selectedTraits.toList(),
+            description: _descriptionController.text.isEmpty
+                ? null
+                : _descriptionController.text,
+            kennelId: _kennelId,
+            kennelNumber: kennelNumber,
+          );
+
+          Navigator.pop(context, updatedAnimal);
+        } else {
+          Navigator.pop(context, true);
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -221,8 +303,10 @@ class _StaffAnimalFormScreenState extends ConsumerState<StaffAnimalFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final existingPhotoUrl = widget.animal?.photoUrl;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Dodaj zwierzę')),
+      appBar: AppBar(title: Text(_isEditing ? 'Edytuj zwierzę' : 'Dodaj zwierzę')),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -236,6 +320,17 @@ class _StaffAnimalFormScreenState extends ConsumerState<StaffAnimalFormScreen> {
                   color: Colors.grey[300],
                   child: _pickedImage != null
                       ? Image.file(_pickedImage!, fit: BoxFit.cover)
+                      : (existingPhotoUrl != null && existingPhotoUrl.isNotEmpty)
+                      ? Image.network(
+                    existingPhotoUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Center(
+                        child: Icon(Icons.add_a_photo,
+                            size: 48, color: Colors.grey),
+                      );
+                    },
+                  )
                       : const Center(
                     child: Icon(Icons.add_a_photo,
                         size: 48, color: Colors.grey),
@@ -248,7 +343,7 @@ class _StaffAnimalFormScreenState extends ConsumerState<StaffAnimalFormScreen> {
               controller: _nameController,
               decoration: const InputDecoration(labelText: 'Imię'),
               validator: (value) =>
-              (value == null || value.isEmpty) ? 'Podaj imię' : null,
+              (value == null || value.trim().isEmpty) ? 'Podaj imię' : null,
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
@@ -273,7 +368,9 @@ class _StaffAnimalFormScreenState extends ConsumerState<StaffAnimalFormScreen> {
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) return 'Podaj wiek';
-                      if (int.tryParse(value) == null) return 'Podaj liczbę';
+                      final parsed = int.tryParse(value);
+                      if (parsed == null) return 'Podaj liczbę';
+                      if (parsed <= 0) return 'Wiek musi być większy od 0';
                       return null;
                     },
                   ),
@@ -425,17 +522,15 @@ class _StaffAnimalFormScreenState extends ConsumerState<StaffAnimalFormScreen> {
             const SizedBox(height: 12),
             TextFormField(
               controller: _descriptionController,
-              decoration: const InputDecoration(labelText: 'Opis'),
+              decoration: const InputDecoration(labelText: 'Opis (opcjonalnie)'),
               maxLines: 4,
-              validator: (value) =>
-              (value == null || value.isEmpty) ? 'Podaj opis' : null,
             ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _isSubmitting ? null : _submit,
               child: _isSubmitting
                   ? const CircularProgressIndicator()
-                  : const Text('Dodaj zwierzę'),
+                  : Text(_isEditing ? 'Zapisz zmiany' : 'Dodaj zwierzę'),
             ),
           ],
         ),

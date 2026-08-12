@@ -8,8 +8,16 @@ class StaffAnimalCardCompact extends StatelessWidget {
 
   const StaffAnimalCardCompact({super.key, required this.animal});
 
+  static const Map<String, (IconData, Color)> _statusBadges = {
+    'reserved': (Icons.schedule, Colors.orange),
+    'quarantine': (Icons.warning_amber, Colors.deepPurple),
+    'unavailable': (Icons.block, Colors.grey),
+  };
+
   @override
   Widget build(BuildContext context) {
+    final statusBadge = _statusBadges[animal.status];
+
     return Card(
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -48,23 +56,44 @@ class StaffAnimalCardCompact extends StatelessWidget {
                   },
                 ),
               ),
-              if (animal.healthStatus == 'sick')
-                Positioned(
-                  top: 6,
-                  right: 6,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.local_hospital,
-                      size: 16,
-                      color: Colors.white,
-                    ),
-                  ),
+              Positioned(
+                top: 6,
+                right: 6,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (statusBadge != null) ...[
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: statusBadge.$2,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          statusBadge.$1,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                      if (animal.healthStatus == 'sick')
+                        const SizedBox(width: 4),
+                    ],
+                    if (animal.healthStatus == 'sick')
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.local_hospital,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                  ],
                 ),
+              ),
             ],
           ),
           Padding(

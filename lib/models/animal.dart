@@ -12,7 +12,7 @@ class Animal {
   final String healthStatus;
   final String? healthNotes;
   final List<String> traits;
-  final String description;
+  final String? description;
   final String? kennelId;
   final String? kennelNumber;
 
@@ -30,7 +30,7 @@ class Animal {
     required this.healthStatus,
     this.healthNotes,
     required this.traits,
-    required this.description,
+    this.description,
     this.kennelId,
     this.kennelNumber,
   });
@@ -52,7 +52,7 @@ class Animal {
       healthStatus: json['health_status'] as String,
       healthNotes: json['health_notes'] as String?,
       traits: List<String>.from(json['traits'] as List),
-      description: json['description'] as String,
+      description: json['description'] as String?,
       kennelId: json['kennel_id'] as String?,
       kennelNumber: kennel?['number'] as String?,
     );
