@@ -27,4 +27,21 @@ class AnimalService {
   Future<void> addAnimal(Map<String, dynamic> data) async {
     await _client.from('Animal').insert(data);
   }
+
+  Future<void> updateAnimal(String id, Map<String, dynamic> data) async {
+    await _client.from('Animal').update(data).eq('id', id);
+  }
+
+  Future<void> deleteAnimal(String id) async {
+    await _client.from('Animal').delete().eq('id', id);
+  }
+
+  Future<void> deletePhoto(String photoUrl) async {
+    final segments = Uri.parse(photoUrl).pathSegments;
+    final bucketIndex = segments.indexOf('animal-photos');
+    if (bucketIndex == -1 || bucketIndex == segments.length - 1) return;
+
+    final path = segments.sublist(bucketIndex + 1).join('/');
+    await _client.storage.from('animal-photos').remove([path]);
+  }
 }
