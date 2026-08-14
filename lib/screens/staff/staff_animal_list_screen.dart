@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/providers/animal_filter_provider.dart';
+import 'package:inzynierka/screens/staff/staff_adoptions_screen.dart';
 import 'package:inzynierka/screens/staff/staff_animal_detail_screen.dart';
 import 'package:inzynierka/screens/staff/staff_animal_form_screen.dart';
 import 'package:inzynierka/utils/animal_filter.dart';
@@ -66,7 +67,23 @@ class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
     final filter = ref.watch(animalFilterProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Zwierzęta')),
+      appBar: AppBar(
+        title: const Text('Zwierzęta'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.favorite),
+            tooltip: 'Zaadoptowane zwierzęta',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const StaffAdoptionsScreen(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(

@@ -82,6 +82,88 @@ class _StaffAnimalDetailScreenState
     }
   }
 
+  Future<void> _adoptAnimal() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Zaadoptuj zwierzę'),
+        content: Text('Czy na pewno chcesz oznaczyć ${_animal.name} jako zaadoptowane?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Anuluj'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Zaadoptuj'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    final service = ref.read(animalServiceProvider);
+
+    try {
+      await service.updateAnimal(_animal.id, {'status': 'adopted'});
+
+      ref.invalidate(animalListProvider);
+
+      if (mounted) {
+        setState(() => _animal = _animal.copyWith(status: 'adopted'));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Błąd podczas zapisu: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _revertAdoption() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cofnij adopcję'),
+        content: Text(
+          'Czy na pewno chcesz cofnąć adopcję ${_animal.name}? Zwierzę wróci do statusu "Dostępny do adopcji".',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Anuluj'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Cofnij adopcję'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    final service = ref.read(animalServiceProvider);
+
+    try {
+      await service.updateAnimal(_animal.id, {'status': 'available'});
+
+      ref.invalidate(animalListProvider);
+
+      if (mounted) {
+        setState(() => _animal = _animal.copyWith(status: 'available'));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Błąd podczas zapisu: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final animal = _animal;
@@ -181,6 +263,19 @@ class _StaffAnimalDetailScreenState
               const SizedBox(height: 16),
               Text(animal.description!),
             ],
+            const SizedBox(height: 24),
+            if (animal.status != 'adopted')
+              ElevatedButton.icon(
+                onPressed: _adoptAnimal,
+                icon: const Icon(Icons.favorite),
+                label: const Text('Zaadoptuj'),
+              )
+            else
+              OutlinedButton.icon(
+                onPressed: _revertAdoption,
+                icon: const Icon(Icons.undo),
+                label: const Text('Cofnij adopcję'),
+              ),
           ],
         ),
       ),

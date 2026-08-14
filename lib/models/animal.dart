@@ -77,4 +77,41 @@ class Animal {
       'kennel_id': kennelId,
     };
   }
+
+  Animal copyWith({
+    String? name,
+    String? species,
+    String? status,
+    int? age,
+    String? gender,
+    String? size,
+    String? photoUrl,
+    String? intakeType,
+    DateTime? intakeDate,
+    String? healthStatus,
+    String? healthNotes,
+    List<String>? traits,
+    String? description,
+    String? kennelId,
+    String? kennelNumber,
+  }) {
+    return Animal(
+      id: id,
+      name: name ?? this.name,
+      species: species ?? this.species,
+      status: status ?? this.status,
+      age: age ?? this.age,
+      gender: gender ?? this.gender,
+      size: size ?? this.size,
+      photoUrl: photoUrl ?? this.photoUrl,
+      intakeType: intakeType ?? this.intakeType,
+      intakeDate: intakeDate ?? this.intakeDate,
+      healthStatus: healthStatus ?? this.healthStatus,
+      healthNotes: healthNotes ?? this.healthNotes,
+      traits: traits ?? this.traits,
+      description: description ?? this.description,
+      kennelId: kennelId ?? this.kennelId,
+      kennelNumber: kennelNumber ?? this.kennelNumber,
+    );
+  }
 }
