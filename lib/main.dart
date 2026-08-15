@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:inzynierka/screens/staff/staff_animal_list_screen.dart';
+import 'package:inzynierka/screens/auth_gate.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Schronisko',
-      home: const StaffAnimalListScreen(),
+      home: const AuthGate(),
     );
   }
 }

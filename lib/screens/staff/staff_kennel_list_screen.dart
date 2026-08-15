@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/models/animal.dart';
 import 'package:inzynierka/providers/animal_provider.dart';
+import 'package:inzynierka/providers/auth_provider.dart';
 import 'package:inzynierka/providers/kennel_provider.dart';
 import 'package:inzynierka/widgets/staff/staff_kennel_card.dart';
 
@@ -21,7 +22,16 @@ class StaffKennelListScreen extends ConsumerWidget {
     final animalsAsync = ref.watch(animalListProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Boksy')),
+      appBar: AppBar(
+        title: const Text('Boksy'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Wyloguj',
+            onPressed: () => ref.read(authServiceProvider).signOut(),
+          ),
+        ],
+      ),
       body: kennelsAsync.when(
         data: (kennels) {
           return animalsAsync.when(
