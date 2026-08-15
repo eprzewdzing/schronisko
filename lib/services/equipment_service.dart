@@ -15,4 +15,8 @@ class EquipmentService {
   Future<void> addEquipment(Map<String, dynamic> data) async {
     await _client.from('Equipment').insert(data);
   }
+
+  Future<void> updateEquipment(String id, Map<String, dynamic> data) async {
+    await _client.from('Equipment').update(data).eq('id', id);
+  }
 }
