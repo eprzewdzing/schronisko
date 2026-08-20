@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/models/person.dart';
 import 'package:inzynierka/providers/person_provider.dart';
 import 'package:inzynierka/providers/schedule_provider.dart';
+import 'package:inzynierka/screens/staff/staff_schedule_detail_screen.dart';
 import 'package:inzynierka/utils/polish_date.dart';
 import 'package:inzynierka/widgets/staff/staff_schedule_card.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -69,10 +70,27 @@ class StaffScheduleArchiveScreen extends ConsumerWidget {
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ),
-                    ...entries.map((entry) => StaffScheduleCard(
-                      schedule: entry,
-                      personName: _personName(persons, entry.personId),
-                      isOwn: entry.personId == currentUserId,
+                    ...entries.map((entry) => GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                StaffScheduleDetailScreen(
+                                  schedule: entry,
+                                  personName: _personName(
+                                      persons, entry.personId),
+                                  isOwn: entry.personId == currentUserId,
+                                  readOnly: true,
+                                ),
+                          ),
+                        );
+                      },
+                      child: StaffScheduleCard(
+                        schedule: entry,
+                        personName: _personName(persons, entry.personId),
+                        isOwn: entry.personId == currentUserId,
+                      ),
                     )),
                   ],
                 );

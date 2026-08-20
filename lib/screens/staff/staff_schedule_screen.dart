@@ -9,6 +9,7 @@ import 'package:inzynierka/providers/person_provider.dart';
 import 'package:inzynierka/providers/schedule_provider.dart';
 import 'package:inzynierka/providers/visit_provider.dart';
 import 'package:inzynierka/screens/staff/staff_schedule_archive_screen.dart';
+import 'package:inzynierka/screens/staff/staff_schedule_detail_screen.dart';
 import 'package:inzynierka/screens/staff/staff_schedule_form_screen.dart';
 import 'package:inzynierka/utils/polish_date.dart';
 import 'package:inzynierka/widgets/staff/staff_schedule_card.dart';
@@ -18,9 +19,17 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class _AgendaEntry {
   final DateTime time;
   final Widget card;
-  final Schedule? editableSchedule;
+  final Schedule? schedule;
+  final String? personName;
+  final bool isOwn;
 
-  _AgendaEntry(this.time, this.card, {this.editableSchedule});
+  _AgendaEntry(
+      this.time,
+      this.card, {
+        this.schedule,
+        this.personName,
+        this.isOwn = false,
+      });
 }
 
 class StaffScheduleScreen extends ConsumerStatefulWidget {
@@ -110,14 +119,17 @@ class _StaffScheduleScreenState extends ConsumerState<StaffScheduleScreen> {
                 final entries = <_AgendaEntry>[
                   ...visibleSchedules.map((s) {
                     final isOwn = s.personId == currentUserId;
+                    final name = _personName(persons, s.personId);
                     return _AgendaEntry(
                       s.scheduledAt,
                       StaffScheduleCard(
                         schedule: s,
-                        personName: _personName(persons, s.personId),
+                        personName: name,
                         isOwn: isOwn,
                       ),
-                      editableSchedule: isOwn ? s : null,
+                      schedule: s,
+                      personName: name,
+                      isOwn: isOwn,
                     );
                   }),
                   ...scheduledVisits.map((v) => _AgendaEntry(
@@ -192,7 +204,7 @@ class _StaffScheduleScreenState extends ConsumerState<StaffScheduleScreen> {
                                 ),
                               ),
                               ...dayEntries.map((e) {
-                                if (e.editableSchedule == null) {
+                                if (e.schedule == null) {
                                   return e.card;
                                 }
 
@@ -202,8 +214,10 @@ class _StaffScheduleScreenState extends ConsumerState<StaffScheduleScreen> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            StaffScheduleFormScreen(
-                                              schedule: e.editableSchedule,
+                                            StaffScheduleDetailScreen(
+                                              schedule: e.schedule!,
+                                              personName: e.personName!,
+                                              isOwn: e.isOwn,
                                             ),
                                       ),
                                     );

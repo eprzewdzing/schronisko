@@ -40,7 +40,6 @@ class StaffScheduleCard extends StatelessWidget {
         subtitle: Text(
             scheduleTypeLabels[schedule.type] ?? schedule.type,
         ),
-        trailing: isOwn ? const Icon(Icons.edit_outlined, size: 20) : null,
       ),
     );
   }
