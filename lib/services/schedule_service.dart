@@ -15,4 +15,12 @@ class ScheduleService {
   Future<void> addSchedule(Map<String, dynamic> data) async {
     await _client.from('Schedule').insert(data);
   }
+
+  Future<void> updateSchedule(String id, Map<String, dynamic> data) async {
+    await _client.from('Schedule').update(data).eq('id', id);
+  }
+
+  Future<void> deleteSchedule(String id) async {
+    await _client.from('Schedule').delete().eq('id', id);
+  }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:inzynierka/screens/staff/staff_animal_list_screen.dart';
 import 'package:inzynierka/screens/staff/staff_equipment_list_screen.dart';
 import 'package:inzynierka/screens/staff/staff_kennel_list_screen.dart';
+import 'package:inzynierka/screens/staff/staff_schedule_screen.dart';
 
 class StaffHomeScreen extends StatefulWidget {
   const StaffHomeScreen({super.key});
@@ -17,6 +18,7 @@ class _StaffHomeScreenState extends State<StaffHomeScreen> {
     StaffAnimalListScreen(),
     StaffKennelListScreen(),
     StaffEquipmentListScreen(),
+    StaffScheduleScreen(),
   ];
 
   @override
@@ -46,6 +48,11 @@ class _StaffHomeScreenState extends State<StaffHomeScreen> {
             icon: Icon(Icons.inventory_2_outlined),
             selectedIcon: Icon(Icons.inventory_2),
             label: 'Wyposażenie',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.calendar_month_outlined),
+            selectedIcon: Icon(Icons.calendar_month),
+            label: 'Harmonogram',
           ),
         ],
       ),
