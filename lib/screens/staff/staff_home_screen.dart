@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inzynierka/screens/staff/staff_animal_list_screen.dart';
+import 'package:inzynierka/screens/staff/staff_board_screen.dart';
 import 'package:inzynierka/screens/staff/staff_equipment_list_screen.dart';
 import 'package:inzynierka/screens/staff/staff_kennel_list_screen.dart';
 import 'package:inzynierka/screens/staff/staff_schedule_screen.dart';
@@ -17,6 +18,7 @@ class _StaffHomeScreenState extends State<StaffHomeScreen> {
   static const _screens = [
     StaffAnimalListScreen(),
     StaffKennelListScreen(),
+    StaffBoardScreen(),
     StaffEquipmentListScreen(),
     StaffScheduleScreen(),
   ];
@@ -43,6 +45,11 @@ class _StaffHomeScreenState extends State<StaffHomeScreen> {
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
             label: 'Boksy',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.dashboard_outlined),
+            selectedIcon: Icon(Icons.dashboard),
+            label: 'Tablica',
           ),
           NavigationDestination(
             icon: Icon(Icons.inventory_2_outlined),

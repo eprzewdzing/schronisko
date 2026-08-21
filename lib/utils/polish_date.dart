@@ -37,3 +37,14 @@ String polishDayLabel(DateTime date) {
   final month = _months[date.month - 1];
   return '$weekday, ${date.day} $month';
 }
+
+String polishExpiryLabel(DateTime date) {
+  final today = DateTime.now();
+  final todayDate = DateTime(today.year, today.month, today.day);
+  final expiryDate = DateTime(date.year, date.month, date.day);
+  final daysLeft = expiryDate.difference(todayDate).inDays;
+
+  if (daysLeft <= 0) return 'Wygasa dziś';
+  if (daysLeft == 1) return 'Wygasa jutro';
+  return 'Wygasa za $daysLeft dni';
+}
