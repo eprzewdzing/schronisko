@@ -11,6 +11,7 @@ class StaffEquipmentListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final equipmentAsync = ref.watch(equipmentListProvider);
+    final isManager = ref.watch(isManagerProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -23,7 +24,8 @@ class StaffEquipmentListScreen extends ConsumerWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: isManager
+          ? FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
@@ -33,7 +35,8 @@ class StaffEquipmentListScreen extends ConsumerWidget {
           );
         },
         child: const Icon(Icons.add),
-      ),
+      )
+          : null,
       body: equipmentAsync.when(
         data: (equipment) {
           if (equipment.isEmpty) {

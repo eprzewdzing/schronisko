@@ -60,6 +60,7 @@ class StaffBoardScreen extends ConsumerWidget {
     final announcementAsync = ref.watch(announcementListProvider);
     final personAsync = ref.watch(personListProvider);
     final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+    final isManager = ref.watch(isManagerProvider);
     final normalWeight = announcementPriorityWeight['normal']!;
     final normalColor = announcementPriorityColors['normal']!;
 
@@ -74,7 +75,8 @@ class StaffBoardScreen extends ConsumerWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: isManager
+          ? FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
@@ -84,7 +86,8 @@ class StaffBoardScreen extends ConsumerWidget {
           );
         },
         child: const Icon(Icons.add),
-      ),
+      )
+          : null,
       body: equipmentAsync.when(
         data: (equipment) => kennelAsync.when(
           data: (kennels) => announcementAsync.when(

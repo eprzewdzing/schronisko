@@ -5,6 +5,7 @@ import 'package:inzynierka/models/person.dart';
 import 'package:inzynierka/models/schedule.dart';
 import 'package:inzynierka/models/visit.dart';
 import 'package:inzynierka/providers/animal_provider.dart';
+import 'package:inzynierka/providers/auth_provider.dart';
 import 'package:inzynierka/providers/person_provider.dart';
 import 'package:inzynierka/providers/schedule_provider.dart';
 import 'package:inzynierka/providers/visit_provider.dart';
@@ -65,6 +66,7 @@ class _StaffScheduleScreenState extends ConsumerState<StaffScheduleScreen> {
     final visitsAsync = ref.watch(visitListProvider);
     final animalsAsync = ref.watch(animalListProvider);
     final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+    final isManager = ref.watch(isManagerProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -218,6 +220,7 @@ class _StaffScheduleScreenState extends ConsumerState<StaffScheduleScreen> {
                                               schedule: e.schedule!,
                                               personName: e.personName!,
                                               isOwn: e.isOwn,
+                                              isManager: isManager,
                                             ),
                                       ),
                                     );

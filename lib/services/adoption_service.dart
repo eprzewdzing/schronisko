@@ -15,4 +15,16 @@ class AdoptionService {
   Future<void> addAdoption(Map<String, dynamic> data) async {
     await _client.from('Adoption').insert(data);
   }
+
+  Future<void> createForAnimal(String animalId) async {
+    await _client.from('Adoption').insert({
+      'animal_id': animalId,
+      'status': 'completed',
+      'start_date': DateTime.now().toIso8601String().split('T')[0],
+    });
+  }
+
+  Future<void> deleteForAnimal(String animalId) async {
+    await _client.from('Adoption').delete().eq('animal_id', animalId);
+  }
 }

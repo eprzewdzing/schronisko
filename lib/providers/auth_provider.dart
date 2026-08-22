@@ -22,3 +22,8 @@ final currentPersonProvider = FutureProvider<Person?>((ref) async {
   final service = ref.watch(personServiceProvider);
   return service.getPersonById(userId);
 });
+
+final isManagerProvider = Provider<bool>((ref) {
+  final person = ref.watch(currentPersonProvider).value;
+  return person?.role == 'manager';
+});

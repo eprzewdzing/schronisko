@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/models/person.dart';
+import 'package:inzynierka/providers/auth_provider.dart';
 import 'package:inzynierka/providers/person_provider.dart';
 import 'package:inzynierka/providers/schedule_provider.dart';
 import 'package:inzynierka/screens/staff/staff_schedule_detail_screen.dart';
@@ -23,6 +24,7 @@ class StaffScheduleArchiveScreen extends ConsumerWidget {
     final schedulesAsync = ref.watch(scheduleListProvider);
     final personsAsync = ref.watch(personListProvider);
     final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+    final isManager = ref.watch(isManagerProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Archiwum harmonogramu')),
@@ -81,6 +83,7 @@ class StaffScheduleArchiveScreen extends ConsumerWidget {
                                   personName: _personName(
                                       persons, entry.personId),
                                   isOwn: entry.personId == currentUserId,
+                                  isManager: isManager,
                                   readOnly: true,
                                 ),
                           ),

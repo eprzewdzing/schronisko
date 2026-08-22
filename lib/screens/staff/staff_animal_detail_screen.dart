@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/constants/animal_options.dart';
 import 'package:inzynierka/models/animal.dart';
+import 'package:inzynierka/providers/adoption_provider.dart';
 import 'package:inzynierka/providers/animal_provider.dart';
+import 'package:inzynierka/providers/auth_provider.dart';
 import 'package:inzynierka/screens/staff/staff_animal_form_screen.dart';
 import 'package:inzynierka/utils/age_formatter.dart';
 
@@ -103,10 +105,12 @@ class _StaffAnimalDetailScreenState
 
     if (confirmed != true || !mounted) return;
 
-    final service = ref.read(animalServiceProvider);
+    final animalService = ref.read(animalServiceProvider);
+    final adoptionService = ref.read(adoptionServiceProvider);
 
     try {
-      await service.updateAnimal(_animal.id, {'status': 'adopted'});
+      await animalService.updateAnimal(_animal.id, {'status': 'adopted'});
+      await adoptionService.createForAnimal(_animal.id);
 
       ref.invalidate(animalListProvider);
 
@@ -145,10 +149,12 @@ class _StaffAnimalDetailScreenState
 
     if (confirmed != true || !mounted) return;
 
-    final service = ref.read(animalServiceProvider);
+    final animalService = ref.read(animalServiceProvider);
+    final adoptionService = ref.read(adoptionServiceProvider);
 
     try {
-      await service.updateAnimal(_animal.id, {'status': 'available'});
+      await animalService.updateAnimal(_animal.id, {'status': 'available'});
+      await adoptionService.deleteForAnimal(_animal.id);
 
       ref.invalidate(animalListProvider);
 
@@ -167,11 +173,13 @@ class _StaffAnimalDetailScreenState
   @override
   Widget build(BuildContext context) {
     final animal = _animal;
+    final isManager = ref.watch(isManagerProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(animal.name),
-        actions: [
+        actions: isManager
+            ? [
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: _editAnimal,
@@ -180,7 +188,8 @@ class _StaffAnimalDetailScreenState
             icon: const Icon(Icons.delete),
             onPressed: _confirmDelete,
           ),
-        ],
+        ]
+            : null,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -263,19 +272,21 @@ class _StaffAnimalDetailScreenState
               const SizedBox(height: 16),
               Text(animal.description!),
             ],
-            const SizedBox(height: 24),
-            if (animal.status != 'adopted')
-              ElevatedButton.icon(
-                onPressed: _adoptAnimal,
-                icon: const Icon(Icons.favorite),
-                label: const Text('Zaadoptuj'),
-              )
-            else
-              OutlinedButton.icon(
-                onPressed: _revertAdoption,
-                icon: const Icon(Icons.undo),
-                label: const Text('Cofnij adopcję'),
-              ),
+            if (isManager) ...[
+              const SizedBox(height: 24),
+              if (animal.status != 'adopted')
+                ElevatedButton.icon(
+                  onPressed: _adoptAnimal,
+                  icon: const Icon(Icons.favorite),
+                  label: const Text('Zaadoptuj'),
+                )
+              else
+                OutlinedButton.icon(
+                  onPressed: _revertAdoption,
+                  icon: const Icon(Icons.undo),
+                  label: const Text('Cofnij adopcję'),
+                ),
+            ],
           ],
         ),
       ),

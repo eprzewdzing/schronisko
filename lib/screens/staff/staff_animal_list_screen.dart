@@ -66,6 +66,7 @@ class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
   Widget build(BuildContext context) {
     final animalsAsync = ref.watch(filteredAnimalListProvider);
     final filter = ref.watch(animalFilterProvider);
+    final isManager = ref.watch(isManagerProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -90,7 +91,8 @@ class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: isManager
+          ? FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
@@ -100,7 +102,8 @@ class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
           );
         },
         child: const Icon(Icons.add),
-      ),
+      )
+          : null,
       body: Column(
         children: [
           Padding(

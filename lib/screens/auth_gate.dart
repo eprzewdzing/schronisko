@@ -30,7 +30,7 @@ class AuthGate extends ConsumerWidget {
               );
             }
 
-            if (person.role == 'staff') {
+            if (person.role == 'staff' || person.role == 'manager') {
               return const StaffHomeScreen();
             }
 

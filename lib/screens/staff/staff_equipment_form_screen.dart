@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/constants/equipment_options.dart';
 import 'package:inzynierka/models/equipment.dart';
+import 'package:inzynierka/providers/auth_provider.dart';
 import 'package:inzynierka/providers/equipment_provider.dart';
 
 class StaffEquipmentFormScreen extends ConsumerStatefulWidget {
@@ -99,6 +100,8 @@ class _StaffEquipmentFormScreenState
 
   @override
   Widget build(BuildContext context) {
+    final isManager = ref.watch(isManagerProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEditing ? 'Edytuj wyposażenie' : 'Dodaj wyposażenie'),
@@ -110,6 +113,7 @@ class _StaffEquipmentFormScreenState
           children: [
             TextFormField(
               controller: _nameController,
+              enabled: isManager,
               decoration: const InputDecoration(labelText: 'Nazwa'),
               validator: (value) =>
               (value == null || value.trim().isEmpty) ? 'Podaj nazwę' : null,
@@ -142,7 +146,9 @@ class _StaffEquipmentFormScreenState
                         .map((e) =>
                         DropdownMenuItem(value: e.key, child: Text(e.value)))
                         .toList(),
-                    onChanged: (value) => setState(() => _unit = value),
+                    onChanged: isManager
+                        ? (value) => setState(() => _unit = value)
+                        : null,
                   ),
                 ),
               ],

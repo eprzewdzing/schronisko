@@ -183,7 +183,7 @@ class _StaffScheduleFormScreenState
 
     try {
       final data = {
-        'person_id': userId,
+        'person_id': widget.schedule?.personId ?? userId,
         'scheduled_at': scheduledAt.toIso8601String(),
         'ends_at': endsAt?.toIso8601String(),
         'type': _type,

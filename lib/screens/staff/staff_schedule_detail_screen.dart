@@ -8,6 +8,7 @@ class StaffScheduleDetailScreen extends StatelessWidget {
   final Schedule schedule;
   final String personName;
   final bool isOwn;
+  final bool isManager;
   final bool readOnly;
 
   const StaffScheduleDetailScreen({
@@ -15,6 +16,7 @@ class StaffScheduleDetailScreen extends StatelessWidget {
     required this.schedule,
     required this.personName,
     required this.isOwn,
+    this.isManager = false,
     this.readOnly = false,
   });
 
@@ -32,7 +34,7 @@ class StaffScheduleDetailScreen extends StatelessWidget {
         '${schedule.endsAt!.hour.toString().padLeft(2, '0')}:'
         '${schedule.endsAt!.minute.toString().padLeft(2, '0')}';
 
-    final canEdit = isOwn && !readOnly;
+    final canEdit = (isOwn || isManager) && !readOnly;
 
     return Scaffold(
       appBar: AppBar(title: Text(typeLabel)),

@@ -26,4 +26,12 @@ class PersonService {
     if (response == null) return null;
     return Person.fromJson(response);
   }
+
+  Future<void> updateRole(String id, String role) async {
+    await _client.from('Person').update({'role': role}).eq('id', id);
+  }
+
+  Future<void> deletePerson(String id) async {
+    await _client.from('Person').delete().eq('id', id);
+  }
 }

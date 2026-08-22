@@ -73,7 +73,7 @@ class _StaffAnnouncementFormScreenState
 
     try {
       final data = {
-        'person_id': userId,
+        'person_id': widget.announcement?.personId ?? userId,
         'title': _titleController.text,
         'content': _contentController.text.isEmpty
             ? null

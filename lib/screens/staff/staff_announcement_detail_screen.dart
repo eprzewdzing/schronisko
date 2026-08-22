@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/constants/announcement_options.dart';
 import 'package:inzynierka/models/announcement.dart';
 import 'package:inzynierka/providers/announcement_provider.dart';
+import 'package:inzynierka/providers/auth_provider.dart';
 import 'package:inzynierka/screens/staff/staff_announcement_form_screen.dart';
 import 'package:inzynierka/utils/polish_date.dart';
 
@@ -68,12 +69,13 @@ class StaffAnnouncementDetailScreen extends ConsumerWidget {
     final priorityLabel =
         announcementPriorityLabels[announcement.priority] ??
             announcement.priority;
+    final canEdit = isOwn || ref.watch(isManagerProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(announcement.title),
         actions: [
-          if (isOwn)
+          if (canEdit)
             IconButton(
               icon: const Icon(Icons.delete_outline),
               tooltip: 'Usuń',
@@ -81,7 +83,7 @@ class StaffAnnouncementDetailScreen extends ConsumerWidget {
             ),
         ],
       ),
-      floatingActionButton: isOwn
+      floatingActionButton: canEdit
           ? FloatingActionButton.extended(
         icon: const Icon(Icons.edit_outlined),
         label: const Text('Edytuj'),
