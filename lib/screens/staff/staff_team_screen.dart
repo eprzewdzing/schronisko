@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/constants/person_options.dart';
 import 'package:inzynierka/models/person.dart';
-import 'package:inzynierka/providers/auth_provider.dart';
 import 'package:inzynierka/providers/person_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
