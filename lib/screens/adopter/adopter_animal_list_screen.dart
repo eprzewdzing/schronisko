@@ -1,39 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:inzynierka/providers/staff_animal_filter_provider.dart';
-import 'package:inzynierka/providers/auth_provider.dart';
-import 'package:inzynierka/screens/staff/staff_adoptions_screen.dart';
-import 'package:inzynierka/screens/staff/staff_animal_detail_screen.dart';
-import 'package:inzynierka/screens/staff/staff_animal_form_screen.dart';
+import 'package:inzynierka/providers/adopter_animal_filter_provider.dart';
+import 'package:inzynierka/screens/adopter/adopter_animal_detail_screen.dart';
+import 'package:inzynierka/utils/adopter_animal_filter.dart';
 import 'package:inzynierka/utils/animal_sort_option.dart';
-import 'package:inzynierka/widgets/staff/staff_animal_filter_sheet.dart';
-import 'package:inzynierka/widgets/staff/staff_animal_card_compact.dart';
+import 'package:inzynierka/widgets/adopter/adopter_animal_card.dart';
+import 'package:inzynierka/widgets/adopter/adopter_animal_filter_sheet.dart';
 
-enum _StatusGroup { forAdoption, quarantine }
-
-const Map<_StatusGroup, String> _statusGroupLabels = {
-  _StatusGroup.forAdoption: 'Do adopcji',
-  _StatusGroup.quarantine: 'Kwarantanna',
-};
-
-const Set<String> _forAdoptionStatuses = {'available', 'reserved', 'unavailable'};
-const Set<String> _quarantineStatuses = {'quarantine'};
-
-class StaffAnimalListScreen extends ConsumerStatefulWidget {
-  const StaffAnimalListScreen({super.key});
+class AdopterAnimalListScreen extends ConsumerStatefulWidget {
+  const AdopterAnimalListScreen({super.key});
 
   @override
-  ConsumerState<StaffAnimalListScreen> createState() => _StaffAnimalListScreenState();
+  ConsumerState<AdopterAnimalListScreen> createState() => _AdopterAnimalListScreenState();
 }
 
-class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
+class _AdopterAnimalListScreenState extends ConsumerState<AdopterAnimalListScreen> {
   final _searchController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    ref.read(animalFilterProvider.notifier).setStatuses(_forAdoptionStatuses);
-  }
 
   @override
   void dispose() {
@@ -45,7 +27,7 @@ class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => const AnimalFilterSheet(),
+      builder: (context) => const AdopterAnimalFilterSheet(),
     );
   }
 
@@ -53,13 +35,13 @@ class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
     showModalBottomSheet(
       context: context,
       builder: (context) {
-        final currentSort = ref.read(animalFilterProvider).sortOption;
+        final currentSort = ref.read(adopterAnimalFilterProvider).sortOption;
         return SafeArea(
           child: RadioGroup<AnimalSortOption>(
             groupValue: currentSort,
             onChanged: (value) {
               if (value != null) {
-                ref.read(animalFilterProvider.notifier).setSortOption(value);
+                ref.read(adopterAnimalFilterProvider.notifier).setSortOption(value);
               }
               Navigator.pop(context);
             },
@@ -80,65 +62,21 @@ class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final animalsAsync = ref.watch(filteredAnimalListProvider);
-    final filter = ref.watch(animalFilterProvider);
-    final isManager = ref.watch(isManagerProvider);
+    final animalsAsync = ref.watch(filteredAdopterAnimalListProvider);
+    final filter = ref.watch(adopterAnimalFilterProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Zwierzęta'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.favorite),
-            tooltip: 'Zaadoptowane zwierzęta',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const StaffAdoptionsScreen(),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Wyloguj',
-            onPressed: () => ref.read(authServiceProvider).signOut(),
-          ),
-        ],
-      ),
-      floatingActionButton: isManager
-          ? FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const StaffAnimalFormScreen(),
-            ),
-          );
-        },
-        child: const Icon(Icons.add),
-      )
-          : null,
-      body: Column(
+    return SafeArea(
+      child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-            child: SegmentedButton<_StatusGroup>(
-              segments: _statusGroupLabels.entries
+            child: SegmentedButton<AdopterAnimalMode>(
+              segments: adopterAnimalModeLabels.entries
                   .map((entry) => ButtonSegment(value: entry.key, label: Text(entry.value)))
                   .toList(),
-              selected: {
-                filter.statuses.contains('quarantine')
-                    ? _StatusGroup.quarantine
-                    : _StatusGroup.forAdoption,
-              },
+              selected: {filter.mode},
               onSelectionChanged: (selection) {
-                ref.read(animalFilterProvider.notifier).setStatuses(
-                  selection.first == _StatusGroup.quarantine
-                      ? _quarantineStatuses
-                      : _forAdoptionStatuses,
-                );
+                ref.read(adopterAnimalFilterProvider.notifier).setMode(selection.first);
               },
             ),
           ),
@@ -162,26 +100,18 @@ class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
                         icon: const Icon(Icons.clear),
                         onPressed: () {
                           _searchController.clear();
-                          ref
-                              .read(animalFilterProvider.notifier)
-                              .setSearchQuery('');
+                          ref.read(adopterAnimalFilterProvider.notifier).setSearchQuery('');
                           setState(() {});
                         },
                       ),
                     ),
                     onChanged: (value) {
-                      ref.read(animalFilterProvider.notifier).setSearchQuery(value);
+                      ref.read(adopterAnimalFilterProvider.notifier).setSearchQuery(value);
                       setState(() {});
                     },
                   ),
                 ),
                 const SizedBox(width: 8),
-                IconButton.filledTonal(
-                  onPressed: _openSortMenu,
-                  icon: const Icon(Icons.sort),
-                  tooltip: 'Sortuj',
-                ),
-                const SizedBox(width: 4),
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
@@ -192,11 +122,11 @@ class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
                     ),
                     if (filter.hasActiveFilters)
                       Positioned(
-                        top: -2,
-                        right: -2,
+                        top: 4,
+                        right: 4,
                         child: Container(
-                          width: 10,
-                          height: 10,
+                          width: 8,
+                          height: 8,
                           decoration: const BoxDecoration(
                             color: Colors.red,
                             shape: BoxShape.circle,
@@ -205,6 +135,12 @@ class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
                       ),
                   ],
                 ),
+                const SizedBox(width: 8),
+                IconButton.filledTonal(
+                  onPressed: _openSortMenu,
+                  icon: const Icon(Icons.sort),
+                  tooltip: 'Sortuj',
+                ),
               ],
             ),
           ),
@@ -212,17 +148,18 @@ class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
             child: animalsAsync.when(
               data: (animals) {
                 if (animals.isEmpty) {
-                  return const Center(child: Text('Brak zwierząt spełniających kryteria'));
+                  return Center(
+                    child: Text(
+                      filter.mode == AdopterAnimalMode.forAdoption
+                          ? 'Brak zwierząt dostępnych do adopcji'
+                          : 'Brak zwierząt na kwarantannie',
+                    ),
+                  );
                 }
-                return GridView.builder(
+                return ListView.separated(
                   padding: const EdgeInsets.all(12),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 0.8,
-                  ),
                   itemCount: animals.length,
+                  separatorBuilder: (context, index) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final animal = animals[index];
                     return GestureDetector(
@@ -230,12 +167,11 @@ class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                StaffAnimalDetailScreen(animal: animal),
+                            builder: (context) => AdopterAnimalDetailScreen(animal: animal),
                           ),
                         );
                       },
-                      child: StaffAnimalCardCompact(animal: animal),
+                      child: AdopterAnimalCard(animal: animal),
                     );
                   },
                 );

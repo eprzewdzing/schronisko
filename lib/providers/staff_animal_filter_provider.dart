@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/models/animal.dart';
 import 'package:inzynierka/providers/animal_provider.dart';
-import 'package:inzynierka/utils/animal_filter.dart';
+import 'package:inzynierka/utils/staff_animal_filter.dart';
+import 'package:inzynierka/utils/animal_sort_option.dart';
 
 class AnimalFilterNotifier extends StateNotifier<AnimalFilterState> {
   AnimalFilterNotifier() : super(const AnimalFilterState());
@@ -20,6 +21,10 @@ class AnimalFilterNotifier extends StateNotifier<AnimalFilterState> {
 
   void toggleStatus(String value) {
     state = state.copyWith(statuses: _toggled(state.statuses, value));
+  }
+
+  void setStatuses(Set<String> statuses) {
+    state = state.copyWith(statuses: statuses);
   }
 
   void toggleSpecies(String value) {
