@@ -4,6 +4,7 @@ const Map<String, String> visitTypeLabels = {
 };
 
 const Map<String, String> visitStatusLabels = {
+  'pending': 'Do potwierdzenia',
   'scheduled': 'Umówiona',
   'completed': 'Odbyta',
   'cancelled': 'Odwołana',

@@ -15,4 +15,23 @@ class InquiryService {
   Future<void> addInquiry(Map<String, dynamic> data) async {
     await _client.from('Inquiry').insert(data);
   }
+
+  Future<List<Inquiry>> getInquiriesForPerson(String personId) async {
+    final response = await _client
+        .from('Inquiry')
+        .select()
+        .eq('person_id', personId)
+        .order('created_at', ascending: false);
+
+    return (response as List)
+        .map((json) => Inquiry.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> answerInquiry(String id, String answer) async {
+    await _client.from('Inquiry').update({
+      'answer': answer,
+      'status': 'answered',
+    }).eq('id', id);
+  }
 }

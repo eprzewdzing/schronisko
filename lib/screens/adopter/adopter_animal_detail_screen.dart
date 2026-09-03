@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/constants/animal_options.dart';
 import 'package:inzynierka/models/animal.dart';
 import 'package:inzynierka/providers/favorite_provider.dart';
+import 'package:inzynierka/screens/adopter/adopter_contact_screen.dart';
 import 'package:inzynierka/utils/age_formatter.dart';
 
 const Set<String> _availableStatuses = {'available', 'reserved'};
@@ -113,6 +114,43 @@ class AdopterAnimalDetailScreen extends ConsumerWidget {
               const SizedBox(height: 6),
               Text(animal.description!),
             ],
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AdopterContactScreen(animal: animal),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.chat_bubble_outline),
+                    label: const Text('Zapytaj o zwierzę'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AdopterContactScreen(
+                            animal: animal,
+                            initialMode: ContactMode.visit,
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.event_available),
+                    label: const Text('Umów wizytę'),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
