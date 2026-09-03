@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/constants/inquiry_options.dart';
 import 'package:inzynierka/constants/visit_options.dart';
 import 'package:inzynierka/models/animal.dart';
-import 'package:inzynierka/models/inquiry.dart';
-import 'package:inzynierka/models/visit.dart';
 import 'package:inzynierka/providers/animal_provider.dart';
 import 'package:inzynierka/providers/inquiry_provider.dart';
 import 'package:inzynierka/providers/visit_provider.dart';
