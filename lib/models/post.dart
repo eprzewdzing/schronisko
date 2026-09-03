@@ -4,6 +4,7 @@ class Post {
   final String photoUrl;
   final String content;
   final DateTime publishedAt;
+  final String status;
 
   Post({
     required this.id,
@@ -11,6 +12,7 @@ class Post {
     required this.photoUrl,
     required this.content,
     required this.publishedAt,
+    required this.status,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class Post {
       photoUrl: json['photo_url'] as String,
       content: json['content'] as String,
       publishedAt: DateTime.parse(json['published_at'] as String),
+      status: json['status'] as String,
     );
   }
 
@@ -30,6 +33,7 @@ class Post {
       'photo_url': photoUrl,
       'content': content,
       'published_at': publishedAt.toIso8601String(),
+      'status': status,
     };
   }
 }
