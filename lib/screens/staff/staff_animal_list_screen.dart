@@ -6,6 +6,7 @@ import 'package:inzynierka/screens/staff/staff_adoptions_screen.dart';
 import 'package:inzynierka/screens/staff/staff_animal_detail_screen.dart';
 import 'package:inzynierka/screens/staff/staff_animal_form_screen.dart';
 import 'package:inzynierka/utils/animal_sort_option.dart';
+import 'package:inzynierka/utils/staff_animal_filter.dart';
 import 'package:inzynierka/widgets/staff/staff_animal_filter_sheet.dart';
 import 'package:inzynierka/widgets/staff/staff_animal_card_compact.dart';
 
@@ -16,9 +17,6 @@ const Map<_StatusGroup, String> _statusGroupLabels = {
   _StatusGroup.quarantine: 'Kwarantanna',
 };
 
-const Set<String> _forAdoptionStatuses = {'available', 'reserved', 'unavailable'};
-const Set<String> _quarantineStatuses = {'quarantine'};
-
 class StaffAnimalListScreen extends ConsumerStatefulWidget {
   const StaffAnimalListScreen({super.key});
 
@@ -28,12 +26,6 @@ class StaffAnimalListScreen extends ConsumerStatefulWidget {
 
 class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
   final _searchController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    ref.read(animalFilterProvider.notifier).setStatuses(_forAdoptionStatuses);
-  }
 
   @override
   void dispose() {
@@ -136,8 +128,8 @@ class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
               onSelectionChanged: (selection) {
                 ref.read(animalFilterProvider.notifier).setStatuses(
                   selection.first == _StatusGroup.quarantine
-                      ? _quarantineStatuses
-                      : _forAdoptionStatuses,
+                      ? quarantineStatuses
+                      : forAdoptionStatuses,
                 );
               },
             ),

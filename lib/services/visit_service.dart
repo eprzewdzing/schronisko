@@ -13,7 +13,14 @@ class VisitService {
   }
 
   Future<void> addVisit(Map<String, dynamic> data) async {
-    await _client.from('Visit').insert(data);
+    try {
+      await _client.from('Visit').insert(data);
+    } on PostgrestException catch (e) {
+      if (e.code == '23505') {
+        throw Exception('Ten termin jest już zajęty przez inną wizytę.');
+      }
+      rethrow;
+    }
   }
 
   Future<List<Visit>> getScheduledVisitsForDay(DateTime day) async {
@@ -45,6 +52,55 @@ class VisitService {
   }
 
   Future<void> updateVisitStatus(String id, String status) async {
-    await _client.from('Visit').update({'status': status}).eq('id', id);
+    try {
+      final response = await _client
+          .from('Visit')
+          .update({'status': status})
+          .eq('id', id)
+          .select();
+
+      if ((response as List).isEmpty) {
+        throw Exception('Brak uprawnień do zmiany statusu tej wizyty.');
+      }
+    } on PostgrestException catch (e) {
+      if (e.code == '23505') {
+        throw Exception('Ten termin jest już zajęty przez inną wizytę.');
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> updateVisitTime(String id, DateTime newTime) async {
+    try {
+      final response = await _client
+          .from('Visit')
+          .update({'scheduled_at': newTime.toIso8601String()})
+          .eq('id', id)
+          .select();
+
+      if ((response as List).isEmpty) {
+        throw Exception('Brak uprawnień do zmiany terminu tej wizyty.');
+      }
+    } on PostgrestException catch (e) {
+      if (e.code == '23505') {
+        throw Exception('Ten termin jest już zajęty przez inną wizytę.');
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> proposeRescheduleTime(String id, DateTime newTime) async {
+    final response = await _client
+        .from('Visit')
+        .update({
+      'scheduled_at': newTime.toIso8601String(),
+      'status': 'pending',
+    })
+        .eq('id', id)
+        .select();
+
+    if ((response as List).isEmpty) {
+      throw Exception('Brak uprawnień do zmiany terminu tej wizyty.');
+    }
   }
 }

@@ -12,6 +12,7 @@ import 'package:inzynierka/providers/visit_provider.dart';
 import 'package:inzynierka/screens/staff/staff_schedule_archive_screen.dart';
 import 'package:inzynierka/screens/staff/staff_schedule_detail_screen.dart';
 import 'package:inzynierka/screens/staff/staff_schedule_form_screen.dart';
+import 'package:inzynierka/screens/staff/staff_visit_detail_screen.dart';
 import 'package:inzynierka/utils/polish_date.dart';
 import 'package:inzynierka/widgets/staff/staff_schedule_card.dart';
 import 'package:inzynierka/widgets/staff/staff_visit_card.dart';
@@ -21,14 +22,18 @@ class _AgendaEntry {
   final DateTime time;
   final Widget card;
   final Schedule? schedule;
+  final Visit? visit;
   final String? personName;
+  final String? animalName;
   final bool isOwn;
 
   _AgendaEntry(
       this.time,
       this.card, {
         this.schedule,
+        this.visit,
         this.personName,
+        this.animalName,
         this.isOwn = false,
       });
 }
@@ -134,14 +139,21 @@ class _StaffScheduleScreenState extends ConsumerState<StaffScheduleScreen> {
                       isOwn: isOwn,
                     );
                   }),
-                  ...scheduledVisits.map((v) => _AgendaEntry(
-                    v.scheduledAt,
-                    StaffVisitCard(
+                  ...scheduledVisits.map((v) {
+                    final animalName = _animalName(animals, v.animalId);
+                    final personName = _personName(persons, v.personId);
+                    return _AgendaEntry(
+                      v.scheduledAt,
+                      StaffVisitCard(
+                        visit: v,
+                        animalName: animalName,
+                        personName: personName,
+                      ),
                       visit: v,
-                      animalName: _animalName(animals, v.animalId),
-                      personName: _personName(persons, v.personId),
-                    ),
-                  )),
+                      animalName: animalName,
+                      personName: personName,
+                    );
+                  }),
                 ];
 
                 entries.sort((a, b) => a.time.compareTo(b.time));
@@ -206,27 +218,47 @@ class _StaffScheduleScreenState extends ConsumerState<StaffScheduleScreen> {
                                 ),
                               ),
                               ...dayEntries.map((e) {
-                                if (e.schedule == null) {
-                                  return e.card;
+                                if (e.schedule != null) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              StaffScheduleDetailScreen(
+                                                schedule: e.schedule!,
+                                                personName: e.personName!,
+                                                isOwn: e.isOwn,
+                                                isManager: isManager,
+                                              ),
+                                        ),
+                                      );
+                                    },
+                                    child: e.card,
+                                  );
                                 }
 
-                                return GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            StaffScheduleDetailScreen(
-                                              schedule: e.schedule!,
-                                              personName: e.personName!,
-                                              isOwn: e.isOwn,
-                                              isManager: isManager,
-                                            ),
-                                      ),
-                                    );
-                                  },
-                                  child: e.card,
-                                );
+                                if (e.visit != null) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              StaffVisitDetailScreen(
+                                                visit: e.visit!,
+                                                animalName: e.animalName!,
+                                                personName: e.personName!,
+                                                isManager: isManager,
+                                              ),
+                                        ),
+                                      );
+                                    },
+                                    child: e.card,
+                                  );
+                                }
+
+                                return e.card;
                               }),
                             ],
                           );

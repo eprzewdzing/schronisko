@@ -65,6 +65,14 @@ class PostService {
   }
 
   Future<void> updateStatus(String id, String status) async {
-    await _client.from('Post').update({'status': status}).eq('id', id);
+    final response = await _client
+        .from('Post')
+        .update({'status': status})
+        .eq('id', id)
+        .select();
+
+    if ((response as List).isEmpty) {
+      throw Exception('Brak uprawnień do zmiany statusu tego posta.');
+    }
   }
 }

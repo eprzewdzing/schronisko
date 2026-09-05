@@ -7,6 +7,7 @@ import 'package:inzynierka/models/person.dart';
 import 'package:inzynierka/models/post.dart';
 import 'package:inzynierka/models/visit.dart';
 import 'package:inzynierka/providers/animal_provider.dart';
+import 'package:inzynierka/providers/auth_provider.dart';
 import 'package:inzynierka/providers/inquiry_provider.dart';
 import 'package:inzynierka/providers/person_provider.dart';
 import 'package:inzynierka/providers/post_provider.dart';
@@ -416,6 +417,7 @@ class _PendingPostsTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final postsAsync = ref.watch(pendingPostsProvider);
     final personsAsync = ref.watch(personListProvider);
+    final isManager = ref.watch(isManagerProvider);
 
     return postsAsync.when(
       data: (posts) {
@@ -467,22 +469,30 @@ class _PendingPostsTab extends ConsumerWidget {
                           const SizedBox(height: 8),
                           Text(post.content),
                           const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              TextButton.icon(
-                                onPressed: () => _reject(context, ref, post),
-                                icon: const Icon(Icons.close),
-                                label: const Text('Odrzuć'),
+                          if (isManager)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton.icon(
+                                  onPressed: () => _reject(context, ref, post),
+                                  icon: const Icon(Icons.close),
+                                  label: const Text('Odrzuć'),
+                                ),
+                                const SizedBox(width: 8),
+                                FilledButton.icon(
+                                  onPressed: () => _approve(context, ref, post),
+                                  icon: const Icon(Icons.check),
+                                  label: const Text('Akceptuj'),
+                                ),
+                              ],
+                            )
+                          else
+                            Text(
+                              'Tylko manager może akceptować lub odrzucać posty.',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                fontStyle: FontStyle.italic,
                               ),
-                              const SizedBox(width: 8),
-                              FilledButton.icon(
-                                onPressed: () => _approve(context, ref, post),
-                                icon: const Icon(Icons.check),
-                                label: const Text('Akceptuj'),
-                              ),
-                            ],
-                          ),
+                            ),
                         ],
                       ),
                     ),

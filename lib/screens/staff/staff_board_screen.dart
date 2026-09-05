@@ -67,33 +67,34 @@ class StaffBoardScreen extends ConsumerWidget {
     final isManager = ref.watch(isManagerProvider);
     final normalWeight = announcementPriorityWeight['normal']!;
     final normalColor = announcementPriorityColors['normal']!;
-    final newInquiriesAsync = ref.watch(newInquiriesProvider);
-    final pendingVisitsAsync = ref.watch(pendingVisitsProvider);
-    final pendingPostsAsync = ref.watch(pendingPostsProvider);
-    final requestsCount = (newInquiriesAsync.value?.length ?? 0) +
-        (pendingVisitsAsync.value?.length ?? 0) +
-        (pendingPostsAsync.value?.length ?? 0);
+    final newInquiriesAsync = isManager ? ref.watch(newInquiriesProvider) : null;
+    final pendingVisitsAsync = isManager ? ref.watch(pendingVisitsProvider) : null;
+    final pendingPostsAsync = isManager ? ref.watch(pendingPostsProvider) : null;
+    final requestsCount = (newInquiriesAsync?.value?.length ?? 0) +
+        (pendingVisitsAsync?.value?.length ?? 0) +
+        (pendingPostsAsync?.value?.length ?? 0);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tablica ogłoszeń'),
         actions: [
-          IconButton(
-            icon: Badge(
-              label: Text('$requestsCount'),
-              isLabelVisible: requestsCount > 0,
-              child: const Icon(Icons.mail_outline),
+          if (isManager)
+            IconButton(
+              icon: Badge(
+                label: Text('$requestsCount'),
+                isLabelVisible: requestsCount > 0,
+                child: const Icon(Icons.mail_outline),
+              ),
+              tooltip: 'Zgłoszenia',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const StaffRequestsScreen(),
+                  ),
+                );
+              },
             ),
-            tooltip: 'Zgłoszenia',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const StaffRequestsScreen(),
-                ),
-              );
-            },
-          ),
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Wyloguj',

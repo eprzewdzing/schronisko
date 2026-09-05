@@ -29,6 +29,18 @@ FutureProvider.family<List<DateTime>, DateTime>((ref, day) async {
   return availableSlotsForDay(day, bookedSlots);
 });
 
+final rescheduleSlotsProvider = FutureProvider.family<
+    List<DateTime>, ({DateTime day, String excludeVisitId})>((ref, params) async {
+  final service = ref.watch(visitServiceProvider);
+  final scheduledVisits = await service.getScheduledVisitsForDay(params.day);
+  final bookedSlots = scheduledVisits
+      .where((visit) => visit.id != params.excludeVisitId)
+      .map((visit) => visit.scheduledAt)
+      .toList();
+
+  return availableSlotsForDay(params.day, bookedSlots);
+});
+
 class VisitController {
   VisitController(this.ref);
 
@@ -76,6 +88,32 @@ class VisitController {
     ref.invalidate(visitListProvider);
     ref.invalidate(myVisitsProvider);
   }
+
+  Future<void> cancel(String visitId) async {
+    final service = ref.read(visitServiceProvider);
+    await service.updateVisitStatus(visitId, 'cancelled');
+
+    ref.invalidate(visitListProvider);
+    ref.invalidate(myVisitsProvider);
+    ref.invalidate(availableSlotsForDayProvider);
+  }
+
+  Future<void> reschedule(String visitId, DateTime newTime) async {
+    final service = ref.read(visitServiceProvider);
+    await service.updateVisitTime(visitId, newTime);
+
+    ref.invalidate(visitListProvider);
+    ref.invalidate(myVisitsProvider);
+    ref.invalidate(availableSlotsForDayProvider);
+  }
+
+  Future<void> proposeReschedule(String visitId, DateTime newTime) async {
+    final service = ref.read(visitServiceProvider);
+    await service.proposeRescheduleTime(visitId, newTime);
+
+    ref.invalidate(visitListProvider);
+    ref.invalidate(myVisitsProvider);
+  }
 }
 
 final visitControllerProvider = Provider<VisitController>((ref) {
@@ -110,6 +148,24 @@ class StaffVisitController {
 
     ref.invalidate(visitListProvider);
     ref.invalidate(myVisitsProvider);
+  }
+
+  Future<void> cancel(String visitId) async {
+    final service = ref.read(visitServiceProvider);
+    await service.updateVisitStatus(visitId, 'cancelled');
+
+    ref.invalidate(visitListProvider);
+    ref.invalidate(myVisitsProvider);
+    ref.invalidate(availableSlotsForDayProvider);
+  }
+
+  Future<void> reschedule(String visitId, DateTime newTime) async {
+    final service = ref.read(visitServiceProvider);
+    await service.updateVisitTime(visitId, newTime);
+
+    ref.invalidate(visitListProvider);
+    ref.invalidate(myVisitsProvider);
+    ref.invalidate(availableSlotsForDayProvider);
   }
 }
 

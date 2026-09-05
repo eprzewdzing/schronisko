@@ -3,9 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/constants/inquiry_options.dart';
 import 'package:inzynierka/constants/visit_options.dart';
 import 'package:inzynierka/models/animal.dart';
+import 'package:inzynierka/models/visit.dart';
 import 'package:inzynierka/providers/animal_provider.dart';
 import 'package:inzynierka/providers/inquiry_provider.dart';
 import 'package:inzynierka/providers/visit_provider.dart';
+import 'package:inzynierka/widgets/visit_reschedule_sheet.dart';
+
+const Set<String> _editableVisitStatuses = {'pending', 'scheduled'};
 
 class AdopterRequestsScreen extends ConsumerStatefulWidget {
   const AdopterRequestsScreen({super.key});
@@ -158,6 +162,79 @@ class _InquiriesTab extends ConsumerWidget {
   }
 }
 
+Future<void> _cancelVisit(BuildContext context, WidgetRef ref, Visit visit) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Odwołaj wizytę'),
+      content: const Text('Czy na pewno chcesz odwołać tę wizytę?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Anuluj'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('Odwołaj'),
+        ),
+      ],
+    ),
+  );
+
+  if (confirmed != true) return;
+
+  try {
+    await ref.read(visitControllerProvider).cancel(visit.id);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Wizyta została odwołana')),
+      );
+    }
+  } catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Błąd podczas odwoływania: $e')),
+      );
+    }
+  }
+}
+
+Future<void> _rescheduleVisit(BuildContext context, WidgetRef ref, Visit visit) async {
+  final result = await showModalBottomSheet<VisitRescheduleResult>(
+    context: context,
+    isScrollControlled: true,
+    builder: (context) => VisitRescheduleSheet(visit: visit),
+  );
+
+  if (result == null) return;
+
+  try {
+    if (result.isCustom) {
+      await ref.read(visitControllerProvider).proposeReschedule(visit.id, result.time);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Propozycja nowego terminu została wysłana do potwierdzenia'),
+          ),
+        );
+      }
+    } else {
+      await ref.read(visitControllerProvider).reschedule(visit.id, result.time);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Termin wizyty został zmieniony')),
+        );
+      }
+    }
+  } catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Błąd podczas zmiany terminu: $e')),
+      );
+    }
+  }
+}
+
 class _VisitsTab extends ConsumerWidget {
   final String Function(DateTime) formatDateTime;
   final Color Function(BuildContext, String) statusColor;
@@ -219,6 +296,25 @@ class _VisitsTab extends ConsumerWidget {
                         formatDateTime(visit.scheduledAt),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
+                      if (_editableVisitStatuses.contains(visit.status)) ...[
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton.icon(
+                              onPressed: () => _cancelVisit(context, ref, visit),
+                              icon: const Icon(Icons.close),
+                              label: const Text('Odwołaj'),
+                            ),
+                            const SizedBox(width: 8),
+                            OutlinedButton.icon(
+                              onPressed: () => _rescheduleVisit(context, ref, visit),
+                              icon: const Icon(Icons.edit_calendar_outlined),
+                              label: const Text('Przełóż'),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),

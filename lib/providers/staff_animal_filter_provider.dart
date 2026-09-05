@@ -5,7 +5,8 @@ import 'package:inzynierka/utils/staff_animal_filter.dart';
 import 'package:inzynierka/utils/animal_sort_option.dart';
 
 class AnimalFilterNotifier extends StateNotifier<AnimalFilterState> {
-  AnimalFilterNotifier() : super(const AnimalFilterState());
+  AnimalFilterNotifier()
+      : super(const AnimalFilterState(statuses: forAdoptionStatuses));
 
   void setSearchQuery(String query) {
     state = state.copyWith(searchQuery: query);

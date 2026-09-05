@@ -1,6 +1,9 @@
 import 'package:inzynierka/models/animal.dart';
 import 'package:inzynierka/utils/animal_sort_option.dart';
 
+const Set<String> forAdoptionStatuses = {'available', 'reserved', 'unavailable'};
+const Set<String> quarantineStatuses = {'quarantine'};
+
 class AnimalFilterState {
   final String searchQuery;
   final Set<String> statuses;

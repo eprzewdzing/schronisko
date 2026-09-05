@@ -29,9 +29,17 @@ class InquiryService {
   }
 
   Future<void> answerInquiry(String id, String answer) async {
-    await _client.from('Inquiry').update({
+    final response = await _client
+        .from('Inquiry')
+        .update({
       'answer': answer,
       'status': 'answered',
-    }).eq('id', id);
+    })
+        .eq('id', id)
+        .select();
+
+    if ((response as List).isEmpty) {
+      throw Exception('Brak uprawnień do odpowiedzi na to zapytanie.');
+    }
   }
 }
