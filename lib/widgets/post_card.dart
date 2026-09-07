@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:inzynierka/models/post.dart';
 
-class AdopterPostCard extends StatelessWidget {
+class PostCard extends StatelessWidget {
   final Post post;
   final String authorName;
+  final bool canDelete;
+  final VoidCallback? onDelete;
 
-  const AdopterPostCard({
+  const PostCard({
     super.key,
     required this.post,
     required this.authorName,
+    this.canDelete = false,
+    this.onDelete,
   });
 
   String _formatDate(DateTime date) {
@@ -27,14 +31,23 @@ class AdopterPostCard extends StatelessWidget {
           ListTile(
             title: Text(authorName),
             subtitle: Text(_formatDate(post.publishedAt)),
+            trailing: canDelete
+                ? IconButton(
+              icon: const Icon(Icons.delete_outline),
+              tooltip: 'Usuń post',
+              onPressed: onDelete,
+            )
+                : null,
           ),
           AspectRatio(
             aspectRatio: 1,
             child: Image.network(
               post.photoUrl,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) =>
-              const ColoredBox(color: Colors.black12, child: Icon(Icons.broken_image)),
+              errorBuilder: (context, error, stackTrace) => const ColoredBox(
+                color: Colors.black12,
+                child: Icon(Icons.broken_image),
+              ),
             ),
           ),
           Padding(

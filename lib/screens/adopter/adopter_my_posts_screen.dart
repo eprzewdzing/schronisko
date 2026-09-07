@@ -2,27 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/constants/post_options.dart';
 import 'package:inzynierka/providers/post_provider.dart';
+import 'package:inzynierka/utils/simple_date_format.dart';
+import 'package:inzynierka/utils/status_color.dart';
 
 class AdopterMyPostsScreen extends ConsumerWidget {
   const AdopterMyPostsScreen({super.key});
-
-  Color _statusColor(String status) {
-    switch (status) {
-      case 'approved':
-        return Colors.green;
-      case 'pending':
-        return Colors.orange;
-      case 'rejected':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}.'
-        '${date.month.toString().padLeft(2, '0')}.${date.year}';
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -71,14 +55,14 @@ class AdopterMyPostsScreen extends ConsumerWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(_formatDate(post.publishedAt)),
+                              Text(formatDate(post.publishedAt)),
                               const SizedBox(height: 4),
                               Text(post.content, maxLines: 2, overflow: TextOverflow.ellipsis),
                               const SizedBox(height: 8),
                               Chip(
                                 label: Text(postStatusLabels[post.status] ?? post.status),
-                                backgroundColor: _statusColor(post.status).withValues(alpha: 0.15),
-                                labelStyle: TextStyle(color: _statusColor(post.status)),
+                                backgroundColor: statusColor(post.status).withValues(alpha: 0.15),
+                                labelStyle: TextStyle(color: statusColor(post.status)),
                                 side: BorderSide.none,
                                 visualDensity: VisualDensity.compact,
                               ),

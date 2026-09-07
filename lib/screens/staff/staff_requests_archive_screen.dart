@@ -10,27 +10,9 @@ import 'package:inzynierka/providers/inquiry_provider.dart';
 import 'package:inzynierka/providers/person_provider.dart';
 import 'package:inzynierka/providers/post_provider.dart';
 import 'package:inzynierka/providers/visit_provider.dart';
-
-String _personName(List<Person> persons, String personId) {
-  for (final person in persons) {
-    if (person.id == personId) return person.name;
-  }
-  return 'Nieznana osoba';
-}
-
-String? _animalName(List<Animal> animals, String? animalId) {
-  if (animalId == null) return null;
-  for (final animal in animals) {
-    if (animal.id == animalId) return animal.name;
-  }
-  return null;
-}
-
-String _formatDateTime(DateTime date) {
-  return '${date.day.toString().padLeft(2, '0')}.'
-      '${date.month.toString().padLeft(2, '0')}.${date.year} '
-      '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-}
+import 'package:inzynierka/utils/lookup.dart';
+import 'package:inzynierka/utils/simple_date_format.dart';
+import 'package:inzynierka/utils/status_color.dart';
 
 class StaffRequestsArchiveScreen extends StatefulWidget {
   const StaffRequestsArchiveScreen({super.key});
@@ -99,7 +81,7 @@ class _AllInquiriesTab extends ConsumerWidget {
           itemCount: sorted.length,
           itemBuilder: (context, index) {
             final inquiry = sorted[index];
-            final animalName = _animalName(animals, inquiry.animalId);
+            final animal = animalName(animals, inquiry.animalId);
 
             return Card(
               margin: const EdgeInsets.only(bottom: 12),
@@ -112,7 +94,7 @@ class _AllInquiriesTab extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            animalName ?? 'Zapytanie ogólne',
+                            animal ?? 'Zapytanie ogólne',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ),
@@ -124,7 +106,7 @@ class _AllInquiriesTab extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${_personName(persons, inquiry.personId)} · ${_formatDateTime(inquiry.createdAt)}',
+                      '${personName(persons, inquiry.personId)} · ${formatDateTime(inquiry.createdAt)}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 8),
@@ -172,7 +154,7 @@ class _AllVisitsTab extends ConsumerWidget {
           itemCount: sorted.length,
           itemBuilder: (context, index) {
             final visit = sorted[index];
-            final animalName = _animalName(animals, visit.animalId);
+            final animal = animalName(animals, visit.animalId);
 
             return Card(
               margin: const EdgeInsets.only(bottom: 12),
@@ -185,7 +167,7 @@ class _AllVisitsTab extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            animalName ?? 'Wizyta ogólna',
+                            animal ?? 'Wizyta ogólna',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ),
@@ -197,13 +179,13 @@ class _AllVisitsTab extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      _personName(persons, visit.personId),
+                      personName(persons, visit.personId),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 4),
                     Text(visitTypeLabels[visit.type] ?? visit.type),
                     const SizedBox(height: 4),
-                    Text(_formatDateTime(visit.scheduledAt)),
+                    Text(formatDateTime(visit.scheduledAt)),
                   ],
                 ),
               ),
@@ -219,19 +201,6 @@ class _AllVisitsTab extends ConsumerWidget {
 
 class _AllPostsTab extends ConsumerWidget {
   const _AllPostsTab();
-
-  Color _statusColor(String status) {
-    switch (status) {
-      case 'approved':
-        return Colors.green;
-      case 'pending':
-        return Colors.orange;
-      case 'rejected':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -284,22 +253,22 @@ class _AllPostsTab extends ConsumerWidget {
                             children: [
                               Expanded(
                                 child: Text(
-                                  _personName(persons, post.personId),
+                                  personName(persons, post.personId),
                                   style: Theme.of(context).textTheme.titleMedium,
                                 ),
                               ),
                               Chip(
                                 label: Text(postStatusLabels[post.status] ?? post.status),
                                 backgroundColor:
-                                _statusColor(post.status).withValues(alpha: 0.15),
-                                labelStyle: TextStyle(color: _statusColor(post.status)),
+                                statusColor(post.status).withValues(alpha: 0.15),
+                                labelStyle: TextStyle(color: statusColor(post.status)),
                                 side: BorderSide.none,
                                 visualDensity: VisualDensity.compact,
                               ),
                             ],
                           ),
                           const SizedBox(height: 4),
-                          Text(_formatDateTime(post.publishedAt)),
+                          Text(formatDateTime(post.publishedAt)),
                           const SizedBox(height: 4),
                           Text(post.content, maxLines: 2, overflow: TextOverflow.ellipsis),
                         ],

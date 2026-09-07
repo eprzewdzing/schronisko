@@ -7,6 +7,8 @@ import 'package:inzynierka/models/visit.dart';
 import 'package:inzynierka/providers/animal_provider.dart';
 import 'package:inzynierka/providers/inquiry_provider.dart';
 import 'package:inzynierka/providers/visit_provider.dart';
+import 'package:inzynierka/utils/simple_date_format.dart';
+import 'package:inzynierka/utils/status_color.dart';
 import 'package:inzynierka/widgets/visit_reschedule_sheet.dart';
 
 const Set<String> _editableVisitStatuses = {'pending', 'scheduled'};
@@ -28,32 +30,6 @@ class _AdopterRequestsScreenState extends ConsumerState<AdopterRequestsScreen>
     super.dispose();
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}.'
-        '${date.month.toString().padLeft(2, '0')}.${date.year}';
-  }
-
-  String _formatDateTime(DateTime date) {
-    return '${_formatDate(date)} ${date.hour.toString().padLeft(2, '0')}:'
-        '${date.minute.toString().padLeft(2, '0')}';
-  }
-
-  Color _statusColor(BuildContext context, String status) {
-    switch (status) {
-      case 'answered':
-      case 'scheduled':
-      case 'completed':
-        return Colors.green;
-      case 'pending':
-      case 'new':
-        return Colors.orange;
-      case 'cancelled':
-        return Colors.red;
-      default:
-        return Theme.of(context).colorScheme.outline;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -68,9 +44,9 @@ class _AdopterRequestsScreenState extends ConsumerState<AdopterRequestsScreen>
         Expanded(
           child: TabBarView(
             controller: _tabController,
-            children: [
-              _InquiriesTab(formatDateTime: _formatDateTime, statusColor: _statusColor),
-              _VisitsTab(formatDateTime: _formatDateTime, statusColor: _statusColor),
+            children: const [
+              _InquiriesTab(),
+              _VisitsTab(),
             ],
           ),
         ),
@@ -80,10 +56,7 @@ class _AdopterRequestsScreenState extends ConsumerState<AdopterRequestsScreen>
 }
 
 class _InquiriesTab extends ConsumerWidget {
-  final String Function(DateTime) formatDateTime;
-  final Color Function(BuildContext, String) statusColor;
-
-  const _InquiriesTab({required this.formatDateTime, required this.statusColor});
+  const _InquiriesTab();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -129,8 +102,8 @@ class _InquiriesTab extends ConsumerWidget {
                               inquiryStatusLabels[inquiry.status] ?? inquiry.status,
                             ),
                             backgroundColor:
-                            statusColor(context, inquiry.status).withValues(alpha: 0.15),
-                            labelStyle: TextStyle(color: statusColor(context, inquiry.status)),
+                            statusColor(inquiry.status).withValues(alpha: 0.15),
+                            labelStyle: TextStyle(color: statusColor(inquiry.status)),
                             side: BorderSide.none,
                           ),
                         ],
@@ -236,10 +209,7 @@ Future<void> _rescheduleVisit(BuildContext context, WidgetRef ref, Visit visit) 
 }
 
 class _VisitsTab extends ConsumerWidget {
-  final String Function(DateTime) formatDateTime;
-  final Color Function(BuildContext, String) statusColor;
-
-  const _VisitsTab({required this.formatDateTime, required this.statusColor});
+  const _VisitsTab();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -283,8 +253,8 @@ class _VisitsTab extends ConsumerWidget {
                           Chip(
                             label: Text(visitStatusLabels[visit.status] ?? visit.status),
                             backgroundColor:
-                            statusColor(context, visit.status).withValues(alpha: 0.15),
-                            labelStyle: TextStyle(color: statusColor(context, visit.status)),
+                            statusColor(visit.status).withValues(alpha: 0.15),
+                            labelStyle: TextStyle(color: statusColor(visit.status)),
                             side: BorderSide.none,
                           ),
                         ],

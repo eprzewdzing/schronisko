@@ -1,23 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:inzynierka/models/person.dart';
 import 'package:inzynierka/providers/auth_provider.dart';
 import 'package:inzynierka/providers/person_provider.dart';
 import 'package:inzynierka/providers/schedule_provider.dart';
 import 'package:inzynierka/screens/staff/staff_schedule_detail_screen.dart';
+import 'package:inzynierka/utils/lookup.dart';
 import 'package:inzynierka/utils/polish_date.dart';
 import 'package:inzynierka/widgets/staff/staff_schedule_card.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class StaffScheduleArchiveScreen extends ConsumerWidget {
   const StaffScheduleArchiveScreen({super.key});
-
-  String _personName(List<Person> persons, String personId) {
-    for (final person in persons) {
-      if (person.id == personId) return person.name;
-    }
-    return 'Nieznana osoba';
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -80,7 +73,7 @@ class StaffScheduleArchiveScreen extends ConsumerWidget {
                             builder: (context) =>
                                 StaffScheduleDetailScreen(
                                   schedule: entry,
-                                  personName: _personName(
+                                  personName: personName(
                                       persons, entry.personId),
                                   isOwn: entry.personId == currentUserId,
                                   isManager: isManager,
@@ -91,7 +84,7 @@ class StaffScheduleArchiveScreen extends ConsumerWidget {
                       },
                       child: StaffScheduleCard(
                         schedule: entry,
-                        personName: _personName(persons, entry.personId),
+                        personName: personName(persons, entry.personId),
                         isOwn: entry.personId == currentUserId,
                       ),
                     )),

@@ -7,8 +7,9 @@ import 'package:inzynierka/screens/staff/staff_animal_detail_screen.dart';
 import 'package:inzynierka/screens/staff/staff_animal_form_screen.dart';
 import 'package:inzynierka/utils/animal_sort_option.dart';
 import 'package:inzynierka/utils/staff_animal_filter.dart';
-import 'package:inzynierka/widgets/staff/staff_animal_filter_sheet.dart';
+import 'package:inzynierka/widgets/animal_search_toolbar.dart';
 import 'package:inzynierka/widgets/staff/staff_animal_card_compact.dart';
+import 'package:inzynierka/widgets/staff/staff_animal_filter_sheet.dart';
 
 enum _StatusGroup { forAdoption, quarantine }
 
@@ -25,14 +26,6 @@ class StaffAnimalListScreen extends ConsumerStatefulWidget {
 }
 
 class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
-  final _searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
   void _openFilterSheet() {
     showModalBottomSheet(
       context: context,
@@ -134,71 +127,13 @@ class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Szukaj po imieniu',
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      isDense: true,
-                      suffixIcon: _searchController.text.isEmpty
-                          ? null
-                          : IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          ref
-                              .read(animalFilterProvider.notifier)
-                              .setSearchQuery('');
-                          setState(() {});
-                        },
-                      ),
-                    ),
-                    onChanged: (value) {
-                      ref.read(animalFilterProvider.notifier).setSearchQuery(value);
-                      setState(() {});
-                    },
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton.filledTonal(
-                  onPressed: _openSortMenu,
-                  icon: const Icon(Icons.sort),
-                  tooltip: 'Sortuj',
-                ),
-                const SizedBox(width: 4),
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    IconButton.filledTonal(
-                      onPressed: _openFilterSheet,
-                      icon: const Icon(Icons.filter_list),
-                      tooltip: 'Filtry',
-                    ),
-                    if (filter.hasActiveFilters)
-                      Positioned(
-                        top: -2,
-                        right: -2,
-                        child: Container(
-                          width: 10,
-                          height: 10,
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ],
-            ),
+          AnimalSearchToolbar(
+            initialQuery: filter.searchQuery,
+            hasActiveFilters: filter.hasActiveFilters,
+            onSearchChanged: (value) =>
+                ref.read(animalFilterProvider.notifier).setSearchQuery(value),
+            onFilterTap: _openFilterSheet,
+            onSortTap: _openSortMenu,
           ),
           Expanded(
             child: animalsAsync.when(
@@ -206,6 +141,7 @@ class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
                 if (animals.isEmpty) {
                   return const Center(child: Text('Brak zwierząt spełniających kryteria'));
                 }
+
                 return GridView.builder(
                   padding: const EdgeInsets.all(12),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -222,8 +158,7 @@ class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                StaffAnimalDetailScreen(animal: animal),
+                            builder: (context) => StaffAnimalDetailScreen(animal: animal),
                           ),
                         );
                       },

@@ -6,6 +6,7 @@ import 'package:inzynierka/screens/staff/staff_board_screen.dart';
 import 'package:inzynierka/screens/staff/staff_equipment_list_screen.dart';
 import 'package:inzynierka/screens/staff/staff_kennel_list_screen.dart';
 import 'package:inzynierka/screens/staff/staff_schedule_screen.dart';
+import 'package:inzynierka/screens/staff/staff_social_screen.dart';
 import 'package:inzynierka/screens/staff/staff_team_screen.dart';
 
 class StaffHomeScreen extends ConsumerStatefulWidget {
@@ -24,6 +25,7 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
     StaffBoardScreen(),
     StaffEquipmentListScreen(),
     StaffScheduleScreen(),
+    StaffSocialScreen(),
   ];
 
   static const _baseDestinations = [
@@ -51,6 +53,11 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
       icon: Icon(Icons.calendar_month_outlined),
       selectedIcon: Icon(Icons.calendar_month),
       label: 'Harmonogram',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.forum_outlined),
+      selectedIcon: Icon(Icons.forum),
+      label: 'Społeczność',
     ),
   ];
 

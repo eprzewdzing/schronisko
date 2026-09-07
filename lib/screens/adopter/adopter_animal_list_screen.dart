@@ -6,6 +6,7 @@ import 'package:inzynierka/utils/adopter_animal_filter.dart';
 import 'package:inzynierka/utils/animal_sort_option.dart';
 import 'package:inzynierka/widgets/adopter/adopter_animal_card.dart';
 import 'package:inzynierka/widgets/adopter/adopter_animal_filter_sheet.dart';
+import 'package:inzynierka/widgets/animal_search_toolbar.dart';
 
 class AdopterAnimalListScreen extends ConsumerStatefulWidget {
   const AdopterAnimalListScreen({super.key});
@@ -15,14 +16,6 @@ class AdopterAnimalListScreen extends ConsumerStatefulWidget {
 }
 
 class _AdopterAnimalListScreenState extends ConsumerState<AdopterAnimalListScreen> {
-  final _searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
   void _openFilterSheet() {
     showModalBottomSheet(
       context: context,
@@ -80,69 +73,13 @@ class _AdopterAnimalListScreenState extends ConsumerState<AdopterAnimalListScree
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Szukaj po imieniu',
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      isDense: true,
-                      suffixIcon: _searchController.text.isEmpty
-                          ? null
-                          : IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          ref.read(adopterAnimalFilterProvider.notifier).setSearchQuery('');
-                          setState(() {});
-                        },
-                      ),
-                    ),
-                    onChanged: (value) {
-                      ref.read(adopterAnimalFilterProvider.notifier).setSearchQuery(value);
-                      setState(() {});
-                    },
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    IconButton.filledTonal(
-                      onPressed: _openFilterSheet,
-                      icon: const Icon(Icons.filter_list),
-                      tooltip: 'Filtry',
-                    ),
-                    if (filter.hasActiveFilters)
-                      Positioned(
-                        top: 4,
-                        right: 4,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(width: 8),
-                IconButton.filledTonal(
-                  onPressed: _openSortMenu,
-                  icon: const Icon(Icons.sort),
-                  tooltip: 'Sortuj',
-                ),
-              ],
-            ),
+          AnimalSearchToolbar(
+            initialQuery: filter.searchQuery,
+            hasActiveFilters: filter.hasActiveFilters,
+            onSearchChanged: (value) =>
+                ref.read(adopterAnimalFilterProvider.notifier).setSearchQuery(value),
+            onFilterTap: _openFilterSheet,
+            onSortTap: _openSortMenu,
           ),
           Expanded(
             child: animalsAsync.when(
@@ -156,6 +93,7 @@ class _AdopterAnimalListScreenState extends ConsumerState<AdopterAnimalListScree
                     ),
                   );
                 }
+
                 return ListView.separated(
                   padding: const EdgeInsets.all(12),
                   itemCount: animals.length,

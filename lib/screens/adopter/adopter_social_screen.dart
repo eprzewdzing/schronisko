@@ -3,14 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/models/person.dart';
 import 'package:inzynierka/providers/person_provider.dart';
 import 'package:inzynierka/providers/post_provider.dart';
-import 'package:inzynierka/widgets/adopter/adopter_post_card.dart';
-
-String _personName(List<Person> persons, String personId) {
-  for (final person in persons) {
-    if (person.id == personId) return person.name;
-  }
-  return 'Adoptujący';
-}
+import 'package:inzynierka/utils/lookup.dart';
+import 'package:inzynierka/widgets/post_card.dart';
 
 class AdopterSocialScreen extends ConsumerWidget {
   const AdopterSocialScreen({super.key});
@@ -35,9 +29,9 @@ class AdopterSocialScreen extends ConsumerWidget {
             itemCount: posts.length,
             itemBuilder: (context, index) {
               final post = posts[index];
-              return AdopterPostCard(
+              return PostCard(
                 post: post,
-                authorName: _personName(persons, post.personId),
+                authorName: personName(persons, post.personId),
               );
             },
           ),

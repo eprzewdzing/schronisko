@@ -13,21 +13,8 @@ import 'package:inzynierka/providers/person_provider.dart';
 import 'package:inzynierka/providers/post_provider.dart';
 import 'package:inzynierka/providers/visit_provider.dart';
 import 'package:inzynierka/screens/staff/staff_requests_archive_screen.dart';
-
-String _personName(List<Person> persons, String personId) {
-  for (final person in persons) {
-    if (person.id == personId) return person.name;
-  }
-  return 'Nieznana osoba';
-}
-
-String? _animalName(List<Animal> animals, String? animalId) {
-  if (animalId == null) return null;
-  for (final animal in animals) {
-    if (animal.id == animalId) return animal.name;
-  }
-  return null;
-}
+import 'package:inzynierka/utils/lookup.dart';
+import 'package:inzynierka/utils/simple_date_format.dart';
 
 Future<void> _showAnswerDialog(
     BuildContext context,
@@ -170,7 +157,7 @@ class _NewInquiriesTab extends ConsumerWidget {
             itemCount: inquiries.length,
             itemBuilder: (context, index) {
               final inquiry = inquiries[index];
-              final animalName = _animalName(animals, inquiry.animalId);
+              final animal = animalName(animals, inquiry.animalId);
 
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
@@ -180,12 +167,12 @@ class _NewInquiriesTab extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        animalName ?? 'Zapytanie ogólne',
+                        animal ?? 'Zapytanie ogólne',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        _personName(persons, inquiry.personId),
+                        personName(persons, inquiry.personId),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       const SizedBox(height: 8),
@@ -270,12 +257,6 @@ class _PendingVisitsTab extends ConsumerWidget {
     }
   }
 
-  String _formatDateTime(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}.'
-        '${date.month.toString().padLeft(2, '0')}.${date.year} '
-        '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final visitsAsync = ref.watch(pendingVisitsProvider);
@@ -298,7 +279,7 @@ class _PendingVisitsTab extends ConsumerWidget {
             itemCount: visits.length,
             itemBuilder: (context, index) {
               final visit = visits[index];
-              final animalName = _animalName(animals, visit.animalId);
+              final animal = animalName(animals, visit.animalId);
 
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
@@ -308,18 +289,18 @@ class _PendingVisitsTab extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        animalName ?? 'Wizyta ogólna',
+                        animal ?? 'Wizyta ogólna',
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        _personName(persons, visit.personId),
+                        personName(persons, visit.personId),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       const SizedBox(height: 4),
                       Text(visitTypeLabels[visit.type] ?? visit.type),
                       const SizedBox(height: 4),
-                      Text('Proponowany termin: ${_formatDateTime(visit.scheduledAt)}'),
+                      Text('Proponowany termin: ${formatDateTime(visit.scheduledAt)}'),
                       const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -408,11 +389,6 @@ class _PendingPostsTab extends ConsumerWidget {
     }
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}.'
-        '${date.month.toString().padLeft(2, '0')}.${date.year}';
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final postsAsync = ref.watch(pendingPostsProvider);
@@ -458,12 +434,12 @@ class _PendingPostsTab extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _personName(persons, post.personId),
+                            personName(persons, post.personId),
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            _formatDate(post.publishedAt),
+                            formatDate(post.publishedAt),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           const SizedBox(height: 8),

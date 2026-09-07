@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:inzynierka/models/animal.dart';
-import 'package:inzynierka/models/person.dart';
 import 'package:inzynierka/models/schedule.dart';
 import 'package:inzynierka/models/visit.dart';
 import 'package:inzynierka/providers/animal_provider.dart';
@@ -13,6 +11,7 @@ import 'package:inzynierka/screens/staff/staff_schedule_archive_screen.dart';
 import 'package:inzynierka/screens/staff/staff_schedule_detail_screen.dart';
 import 'package:inzynierka/screens/staff/staff_schedule_form_screen.dart';
 import 'package:inzynierka/screens/staff/staff_visit_detail_screen.dart';
+import 'package:inzynierka/utils/lookup.dart';
 import 'package:inzynierka/utils/polish_date.dart';
 import 'package:inzynierka/widgets/staff/staff_schedule_card.dart';
 import 'package:inzynierka/widgets/staff/staff_visit_card.dart';
@@ -48,21 +47,6 @@ class StaffScheduleScreen extends ConsumerStatefulWidget {
 
 class _StaffScheduleScreenState extends ConsumerState<StaffScheduleScreen> {
   bool _showOnlyMine = false;
-
-  String _personName(List<Person> persons, String personId) {
-    for (final person in persons) {
-      if (person.id == personId) return person.name;
-    }
-    return 'Nieznana osoba';
-  }
-
-  String _animalName(List<Animal> animals, String? animalId) {
-    if (animalId == null) return 'Nieznane zwierzę';
-    for (final animal in animals) {
-      if (animal.id == animalId) return animal.name;
-    }
-    return 'Nieznane zwierzę';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +110,7 @@ class _StaffScheduleScreenState extends ConsumerState<StaffScheduleScreen> {
                 final entries = <_AgendaEntry>[
                   ...visibleSchedules.map((s) {
                     final isOwn = s.personId == currentUserId;
-                    final name = _personName(persons, s.personId);
+                    final name = personName(persons, s.personId);
                     return _AgendaEntry(
                       s.scheduledAt,
                       StaffScheduleCard(
@@ -140,18 +124,19 @@ class _StaffScheduleScreenState extends ConsumerState<StaffScheduleScreen> {
                     );
                   }),
                   ...scheduledVisits.map((v) {
-                    final animalName = _animalName(animals, v.animalId);
-                    final personName = _personName(persons, v.personId);
+                    final resolvedAnimalName =
+                        animalName(animals, v.animalId) ?? 'Nieznane zwierzę';
+                    final resolvedPersonName = personName(persons, v.personId);
                     return _AgendaEntry(
                       v.scheduledAt,
                       StaffVisitCard(
                         visit: v,
-                        animalName: animalName,
-                        personName: personName,
+                        animalName: resolvedAnimalName,
+                        personName: resolvedPersonName,
                       ),
                       visit: v,
-                      animalName: animalName,
-                      personName: personName,
+                      animalName: resolvedAnimalName,
+                      personName: resolvedPersonName,
                     );
                   }),
                 ];

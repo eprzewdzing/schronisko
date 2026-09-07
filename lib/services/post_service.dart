@@ -75,4 +75,16 @@ class PostService {
       throw Exception('Brak uprawnień do zmiany statusu tego posta.');
     }
   }
+
+  Future<void> deletePost(String id) async {
+    final response = await _client
+        .from('Post')
+        .delete()
+        .eq('id', id)
+        .select();
+
+    if ((response as List).isEmpty) {
+      throw Exception('Brak uprawnień do usunięcia tego posta.');
+    }
+  }
 }

@@ -85,6 +85,16 @@ class StaffPostController {
     ref.invalidate(postListProvider);
     ref.invalidate(pendingPostsProvider);
   }
+
+  Future<void> delete(String postId) async {
+    final service = ref.read(postServiceProvider);
+    await service.deletePost(postId);
+
+    ref.invalidate(postListProvider);
+    ref.invalidate(pendingPostsProvider);
+    ref.invalidate(approvedPostsProvider);
+    ref.invalidate(myPostsProvider);
+  }
 }
 
 final staffPostControllerProvider = Provider<StaffPostController>((ref) {
