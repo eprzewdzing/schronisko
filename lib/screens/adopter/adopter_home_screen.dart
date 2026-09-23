@@ -1,40 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:inzynierka/providers/adopter_home_tab_provider.dart';
 import 'package:inzynierka/providers/auth_provider.dart';
 import 'package:inzynierka/screens/adopter/adopter_animal_list_screen.dart';
 import 'package:inzynierka/screens/adopter/adopter_contact_screen.dart';
 import 'package:inzynierka/screens/adopter/adopter_favorites_screen.dart';
+import 'package:inzynierka/screens/adopter/adopter_match_intro_screen.dart';
 import 'package:inzynierka/screens/adopter/adopter_my_posts_screen.dart';
 import 'package:inzynierka/screens/adopter/adopter_post_form_screen.dart';
 import 'package:inzynierka/screens/adopter/adopter_requests_screen.dart';
 import 'package:inzynierka/screens/adopter/adopter_social_screen.dart';
 
-class AdopterHomeScreen extends ConsumerStatefulWidget {
+class AdopterHomeScreen extends ConsumerWidget {
   const AdopterHomeScreen({super.key});
-
-  @override
-  ConsumerState<AdopterHomeScreen> createState() => _AdopterHomeScreenState();
-}
-
-class _AdopterHomeScreenState extends ConsumerState<AdopterHomeScreen> {
-  int _index = 0;
 
   static const _screens = [
     AdopterAnimalListScreen(),
+    AdopterMatchIntroScreen(),
     AdopterContactScreen(),
     AdopterRequestsScreen(),
     AdopterSocialScreen(),
   ];
 
-  static const _titles = ['Zwierzęta', 'Kontakt', 'Zgłoszenia', 'Społeczność'];
+  static const _titles = [
+    'Zwierzęta',
+    'Test dopasowania',
+    'Kontakt',
+    'Zgłoszenia',
+    'Społeczność',
+  ];
 
   @override
-  Widget build(BuildContext context) {
-    final isSocialTab = _index == 3;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final index = ref.watch(adopterHomeTabIndexProvider);
+    final isSocialTab = index == 4;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_titles[_index]),
+        title: Text(_titles[index]),
         actions: [
           if (isSocialTab)
             IconButton(
@@ -66,7 +69,7 @@ class _AdopterHomeScreenState extends ConsumerState<AdopterHomeScreen> {
           ),
         ],
       ),
-      body: _screens[_index],
+      body: _screens[index],
       floatingActionButton: isSocialTab
           ? FloatingActionButton(
         onPressed: () {
@@ -79,12 +82,13 @@ class _AdopterHomeScreenState extends ConsumerState<AdopterHomeScreen> {
       )
           : null,
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
+        selectedIndex: index,
         onDestinationSelected: (value) {
-          setState(() => _index = value);
+          ref.read(adopterHomeTabIndexProvider.notifier).state = value;
         },
         destinations: const [
           NavigationDestination(icon: Icon(Icons.pets), label: 'Zwierzęta'),
+          NavigationDestination(icon: Icon(Icons.favorite_outline), label: 'Dopasowanie'),
           NavigationDestination(icon: Icon(Icons.mail_outline), label: 'Kontakt'),
           NavigationDestination(icon: Icon(Icons.list_alt), label: 'Zgłoszenia'),
           NavigationDestination(icon: Icon(Icons.groups_outlined), label: 'Społeczność'),

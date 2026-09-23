@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/providers/adopter_animal_filter_provider.dart';
+import 'package:inzynierka/providers/adopter_animal_match_provider.dart';
+import 'package:inzynierka/providers/adopter_preferences_provider.dart';
 import 'package:inzynierka/screens/adopter/adopter_animal_detail_screen.dart';
 import 'package:inzynierka/utils/adopter_animal_filter.dart';
 import 'package:inzynierka/utils/animal_sort_option.dart';
@@ -25,6 +27,8 @@ class _AdopterAnimalListScreenState extends ConsumerState<AdopterAnimalListScree
   }
 
   void _openSortMenu() {
+    final hasPreferences = ref.read(adopterPreferencesProvider).valueOrNull != null;
+
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -41,9 +45,11 @@ class _AdopterAnimalListScreenState extends ConsumerState<AdopterAnimalListScree
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: animalSortOptionLabels.entries.map((entry) {
+                final isMatchOption = entry.key == AnimalSortOption.matchDesc;
                 return RadioListTile<AnimalSortOption>(
                   title: Text(entry.value),
                   value: entry.key,
+                  enabled: !isMatchOption || hasPreferences,
                 );
               }).toList(),
             ),
@@ -57,6 +63,7 @@ class _AdopterAnimalListScreenState extends ConsumerState<AdopterAnimalListScree
   Widget build(BuildContext context) {
     final animalsAsync = ref.watch(filteredAdopterAnimalListProvider);
     final filter = ref.watch(adopterAnimalFilterProvider);
+    final matchScores = ref.watch(adopterAnimalMatchScoresProvider);
 
     return SafeArea(
       child: Column(
@@ -94,12 +101,18 @@ class _AdopterAnimalListScreenState extends ConsumerState<AdopterAnimalListScree
                   );
                 }
 
+                final displayedAnimals = filter.sortOption == AnimalSortOption.matchDesc
+                    ? (List.of(animals)
+                  ..sort((a, b) =>
+                      (matchScores[b.id] ?? 0).compareTo(matchScores[a.id] ?? 0)))
+                    : animals;
+
                 return ListView.separated(
                   padding: const EdgeInsets.all(12),
-                  itemCount: animals.length,
+                  itemCount: displayedAnimals.length,
                   separatorBuilder: (context, index) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
-                    final animal = animals[index];
+                    final animal = displayedAnimals[index];
                     return GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -109,7 +122,10 @@ class _AdopterAnimalListScreenState extends ConsumerState<AdopterAnimalListScree
                           ),
                         );
                       },
-                      child: AdopterAnimalCard(animal: animal),
+                      child: AdopterAnimalCard(
+                        animal: animal,
+                        matchScore: matchScores[animal.id],
+                      ),
                     );
                   },
                 );

@@ -36,14 +36,24 @@ const Map<String, String> animalStatuses = {
 };
 
 const Map<String, String> animalTraits = {
-  'friendly': 'Przyjazny',
-  'child_friendly': 'Przyjazny dla dzieci',
   'calm': 'Spokojny',
   'energetic': 'Energiczny',
   'shy': 'Płochliwy',
   'sociable': 'Towarzyski',
   'independent': 'Niezależny',
-  'good_with_other_animals': 'Dobrze się czuje z innymi zwierzętami',
-  'needs_experienced_owner': 'Wymaga doświadczonego opiekuna',
+  'affectionate': 'Silnie przywiązuje się do opiekuna',
+  'physically_affectionate': 'Lubi kontakt fizyczny (przytulanie, głaskanie)',
+  'vocal': 'Głośny (dużo szczeka / miauczy)',
   'trained': 'Wyszkolony',
+  'good_with_children': 'Dobrze się czuje z dziećmi',
+  'good_with_dogs': 'Dobrze się czuje w towarzystwie psów',
+  'good_with_cats': 'Dobrze się czuje w towarzystwie kotów',
+  'needs_experienced_owner': 'Wymaga doświadczonego opiekuna',
+  'needs_garden': 'Potrzebuje ogrodu / dużo przestrzeni',
+  'high_exercise_needs': 'Potrzebuje dużo ruchu',
+  'low_exercise_needs': 'Wystarczą krótkie spacery',
+  'high_grooming_needs': 'Wymaga częstej pielęgnacji sierści',
+  'low_grooming_needs': 'Minimalna pielęgnacja',
+  'reserved_with_strangers': 'Nieufny wobec obcych',
+  'escape_risk': 'Skłonny do uciekania, wymaga zabezpieczonego terenu',
 };

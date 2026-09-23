@@ -108,6 +108,8 @@ List<Animal> applyAnimalFilter(List<Animal> animals, AnimalFilterState filter) {
         return b.intakeDate.compareTo(a.intakeDate);
       case AnimalSortOption.intakeDateOldest:
         return a.intakeDate.compareTo(b.intakeDate);
+      case AnimalSortOption.matchDesc:
+        return 0;
     }
   });
 

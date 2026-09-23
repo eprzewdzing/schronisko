@@ -31,6 +31,18 @@ class AdopterAnimalFilterNotifier extends StateNotifier<AdopterAnimalFilterState
     state = state.copyWith(sizes: _toggled(state.sizes, value));
   }
 
+  void toggleTrait(String value) {
+    state = state.copyWith(traits: _toggled(state.traits, value));
+  }
+
+  void setAgeRange(int? minAge, int? maxAge) {
+    if (minAge == null && maxAge == null) {
+      state = state.copyWith(clearAgeRange: true);
+    } else {
+      state = state.copyWith(minAge: minAge, maxAge: maxAge);
+    }
+  }
+
   void clearFilters() {
     state = state.clearFilters();
   }

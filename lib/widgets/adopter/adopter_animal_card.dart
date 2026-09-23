@@ -4,13 +4,15 @@ import 'package:inzynierka/constants/animal_options.dart';
 import 'package:inzynierka/models/animal.dart';
 import 'package:inzynierka/providers/favorite_provider.dart';
 import 'package:inzynierka/utils/age_formatter.dart';
+import 'package:inzynierka/widgets/match_level_indicator.dart';
 
 const Set<String> _availableStatuses = {'available', 'reserved'};
 
 class AdopterAnimalCard extends ConsumerWidget {
   final Animal animal;
+  final double? matchScore;
 
-  const AdopterAnimalCard({super.key, required this.animal});
+  const AdopterAnimalCard({super.key, required this.animal, this.matchScore});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -100,6 +102,19 @@ class AdopterAnimalCard extends ConsumerWidget {
                   ),
                 ),
               ),
+              if (matchScore != null)
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.black26,
+                      shape: BoxShape.circle,
+                    ),
+                    child: MatchLevelIndicator(score: matchScore!),
+                  ),
+                ),
             ],
           ),
           Padding(

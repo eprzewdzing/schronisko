@@ -50,7 +50,9 @@ class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
             },
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: animalSortOptionLabels.entries.map((entry) {
+              children: animalSortOptionLabels.entries
+                  .where((entry) => entry.key != AnimalSortOption.matchDesc)
+                  .map((entry) {
                 return RadioListTile<AnimalSortOption>(
                   title: Text(entry.value),
                   value: entry.key,

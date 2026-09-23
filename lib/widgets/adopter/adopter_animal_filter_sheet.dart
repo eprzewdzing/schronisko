@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/constants/animal_options.dart';
 import 'package:inzynierka/providers/adopter_animal_filter_provider.dart';
+import 'package:inzynierka/utils/adopter_animal_filter.dart';
 
 class AdopterAnimalFilterSheet extends ConsumerWidget {
   const AdopterAnimalFilterSheet({super.key});
@@ -12,7 +13,7 @@ class AdopterAnimalFilterSheet extends ConsumerWidget {
     final notifier = ref.read(adopterAnimalFilterProvider.notifier);
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.6,
+      initialChildSize: 0.7,
       minChildSize: 0.4,
       maxChildSize: 0.9,
       expand: false,
@@ -53,6 +54,17 @@ class AdopterAnimalFilterSheet extends ConsumerWidget {
                       labels: sizeLabels,
                       selected: filter.sizes,
                       onToggle: notifier.toggleSize,
+                    ),
+                    _AgeRangeSection(
+                      minAge: filter.minAge,
+                      maxAge: filter.maxAge,
+                      onChanged: notifier.setAgeRange,
+                    ),
+                    _FilterSection(
+                      title: 'Charakter i cechy',
+                      labels: animalTraits,
+                      selected: filter.traits,
+                      onToggle: notifier.toggleTrait,
                     ),
                   ],
                 ),
@@ -101,6 +113,50 @@ class _FilterSection extends StatelessWidget {
           }).toList(),
         ),
         const SizedBox(height: 16),
+      ],
+    );
+  }
+}
+
+class _AgeRangeSection extends StatelessWidget {
+  final int? minAge;
+  final int? maxAge;
+  final void Function(int? minAge, int? maxAge) onChanged;
+
+  const _AgeRangeSection({
+    required this.minAge,
+    required this.maxAge,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final currentMin = minAge ?? adopterAnimalFilterMinAge;
+    final currentMax = maxAge ?? adopterAnimalFilterMaxAge;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Wiek', style: Theme.of(context).textTheme.titleSmall),
+        Text(
+          '$currentMin – $currentMax lat',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        RangeSlider(
+          min: adopterAnimalFilterMinAge.toDouble(),
+          max: adopterAnimalFilterMaxAge.toDouble(),
+          divisions: adopterAnimalFilterMaxAge - adopterAnimalFilterMinAge,
+          values: RangeValues(currentMin.toDouble(), currentMax.toDouble()),
+          labels: RangeLabels('$currentMin', '$currentMax'),
+          onChanged: (values) {
+            final newMin = values.start.round();
+            final newMax = values.end.round();
+            final isFullRange = newMin == adopterAnimalFilterMinAge &&
+                newMax == adopterAnimalFilterMaxAge;
+            onChanged(isFullRange ? null : newMin, isFullRange ? null : newMax);
+          },
+        ),
+        const SizedBox(height: 8),
       ],
     );
   }

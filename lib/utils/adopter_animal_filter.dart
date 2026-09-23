@@ -8,12 +8,18 @@ const Map<AdopterAnimalMode, String> adopterAnimalModeLabels = {
   AdopterAnimalMode.quarantine: 'Kwarantanna',
 };
 
+const int adopterAnimalFilterMinAge = 0;
+const int adopterAnimalFilterMaxAge = 20;
+
 class AdopterAnimalFilterState {
   final AdopterAnimalMode mode;
   final String searchQuery;
   final Set<String> species;
   final Set<String> genders;
   final Set<String> sizes;
+  final Set<String> traits;
+  final int? minAge;
+  final int? maxAge;
   final AnimalSortOption sortOption;
 
   const AdopterAnimalFilterState({
@@ -22,11 +28,19 @@ class AdopterAnimalFilterState {
     this.species = const {},
     this.genders = const {},
     this.sizes = const {},
+    this.traits = const {},
+    this.minAge,
+    this.maxAge,
     this.sortOption = AnimalSortOption.nameAsc,
   });
 
   bool get hasActiveFilters =>
-      species.isNotEmpty || genders.isNotEmpty || sizes.isNotEmpty;
+      species.isNotEmpty ||
+          genders.isNotEmpty ||
+          sizes.isNotEmpty ||
+          traits.isNotEmpty ||
+          minAge != null ||
+          maxAge != null;
 
   AdopterAnimalFilterState copyWith({
     AdopterAnimalMode? mode,
@@ -34,6 +48,10 @@ class AdopterAnimalFilterState {
     Set<String>? species,
     Set<String>? genders,
     Set<String>? sizes,
+    Set<String>? traits,
+    int? minAge,
+    int? maxAge,
+    bool clearAgeRange = false,
     AnimalSortOption? sortOption,
   }) {
     return AdopterAnimalFilterState(
@@ -42,6 +60,9 @@ class AdopterAnimalFilterState {
       species: species ?? this.species,
       genders: genders ?? this.genders,
       sizes: sizes ?? this.sizes,
+      traits: traits ?? this.traits,
+      minAge: clearAgeRange ? null : (minAge ?? this.minAge),
+      maxAge: clearAgeRange ? null : (maxAge ?? this.maxAge),
       sortOption: sortOption ?? this.sortOption,
     );
   }
@@ -81,6 +102,16 @@ List<Animal> applyAdopterAnimalFilter(
     if (filter.sizes.isNotEmpty && !filter.sizes.contains(animal.size)) {
       return false;
     }
+    if (filter.minAge != null && animal.age < filter.minAge!) {
+      return false;
+    }
+    if (filter.maxAge != null && animal.age > filter.maxAge!) {
+      return false;
+    }
+    if (filter.traits.isNotEmpty &&
+        !filter.traits.every((trait) => animal.traits.contains(trait))) {
+      return false;
+    }
     return true;
   }).toList();
 
@@ -96,6 +127,8 @@ List<Animal> applyAdopterAnimalFilter(
         return b.intakeDate.compareTo(a.intakeDate);
       case AnimalSortOption.intakeDateOldest:
         return a.intakeDate.compareTo(b.intakeDate);
+      case AnimalSortOption.matchDesc:
+        return 0;
     }
   });
 
