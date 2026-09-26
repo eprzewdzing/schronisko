@@ -3,7 +3,7 @@ import 'package:inzynierka/models/match_criteria.dart';
 
 enum ExerciseTime { low, medium, high }
 
-const int matchQuizStepCount = 13;
+const int matchQuizStepCount = 14;
 
 final matchQuizStepProvider = StateProvider<int>((ref) => 0);
 
@@ -24,6 +24,12 @@ class MatchQuizNotifier extends StateNotifier<MatchCriteria> {
       updated.add(size);
     }
     state = state.copyWith(preferredSizes: updated);
+  }
+
+  void setAgeGroup(String? ageGroup) {
+    state = state.copyWith(
+      preferredAgeGroups: ageGroup == null ? {} : {ageGroup},
+    );
   }
 
   void setHasNoExperience(bool value) {

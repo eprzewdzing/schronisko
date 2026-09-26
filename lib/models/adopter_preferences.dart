@@ -5,6 +5,7 @@ class AdopterPreferences {
   final String personId;
   final Set<String> preferredSpecies;
   final Set<String> preferredSizes;
+  final Set<String> preferredAgeGroups;
   final Set<String> desiredTraits;
   final Set<String> avoidedTraits;
   final bool hasNoExperience;
@@ -15,6 +16,7 @@ class AdopterPreferences {
     required this.personId,
     required this.preferredSpecies,
     required this.preferredSizes,
+    required this.preferredAgeGroups,
     required this.desiredTraits,
     required this.avoidedTraits,
     required this.hasNoExperience,
@@ -28,6 +30,7 @@ class AdopterPreferences {
       preferredSpecies:
       Set<String>.from(json['preferred_species'] as List),
       preferredSizes: Set<String>.from(json['preferred_sizes'] as List),
+      preferredAgeGroups: Set<String>.from(json['preferred_age_groups'] as List),
       desiredTraits: Set<String>.from(json['desired_traits'] as List),
       avoidedTraits: Set<String>.from(json['avoided_traits'] as List),
       hasNoExperience: json['has_no_experience'] as bool,
@@ -40,6 +43,7 @@ class AdopterPreferences {
       'person_id': personId,
       'preferred_species': preferredSpecies.toList(),
       'preferred_sizes': preferredSizes.toList(),
+      'preferred_age_groups': preferredAgeGroups.toList(),
       'desired_traits': desiredTraits.toList(),
       'avoided_traits': avoidedTraits.toList(),
       'has_no_experience': hasNoExperience,
@@ -50,6 +54,7 @@ class AdopterPreferences {
     return MatchCriteria(
       preferredSpecies: preferredSpecies,
       preferredSizes: preferredSizes,
+      preferredAgeGroups: preferredAgeGroups,
       desiredTraits: desiredTraits,
       avoidedTraits: avoidedTraits,
       hasNoExperience: hasNoExperience,

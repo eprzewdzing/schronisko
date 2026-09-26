@@ -188,6 +188,20 @@ class AdopterMatchQuizScreen extends ConsumerWidget {
           selected: criteria.avoidedTraits.contains('shy') ? 'yes' : 'no',
           onSelected: (value) => notifier.setWantsBraveWithStrangers(value == 'yes'),
         );
+      case 13:
+        return _SingleChoice(
+          title: 'Jaki wiek zwierzęcia bierzesz pod uwagę?',
+          options: const {
+            'young': 'Młody (szczeniak / kociak)',
+            'adult': 'Dorosły',
+            'senior': 'Starszy',
+            '': 'Bez różnicy',
+          },
+          selected: criteria.preferredAgeGroups.isEmpty
+              ? ''
+              : criteria.preferredAgeGroups.first,
+          onSelected: (value) => notifier.setAgeGroup(value.isEmpty ? null : value),
+        );
       default:
         return const SizedBox.shrink();
     }
@@ -214,14 +228,18 @@ class _SingleChoice extends StatelessWidget {
       children: [
         Text(title, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 16),
-        ...options.entries.map((entry) {
-          return RadioListTile<String>(
-            title: Text(entry.value),
-            value: entry.key,
-            groupValue: selected,
-            onChanged: (value) => onSelected(value!),
-          );
-        }),
+        RadioGroup<String>(
+          groupValue: selected,
+          onChanged: (value) => onSelected(value!),
+          child: Column(
+            children: options.entries.map((entry) {
+              return RadioListTile<String>(
+                title: Text(entry.value),
+                value: entry.key,
+              );
+            }).toList(),
+          ),
+        ),
       ],
     );
   }

@@ -1,6 +1,14 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
+int matchLevelPercent(double score) {
+  if (score >= 80) return 100;
+  if (score >= 60) return 75;
+  if (score >= 40) return 50;
+  if (score >= 20) return 25;
+  return 0;
+}
+
 class MatchLevelIndicator extends StatelessWidget {
   final double score;
   final double size;
@@ -13,12 +21,7 @@ class MatchLevelIndicator extends StatelessWidget {
     this.color = Colors.white,
   });
 
-  double get _fraction {
-    if (score >= 75) return 1.0;
-    if (score >= 50) return 0.5;
-    if (score >= 25) return 0.25;
-    return 0.0;
-  }
+  double get _fraction => matchLevelPercent(score) / 100;
 
   @override
   Widget build(BuildContext context) {

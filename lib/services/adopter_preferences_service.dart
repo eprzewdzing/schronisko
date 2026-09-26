@@ -25,6 +25,7 @@ class AdopterPreferencesService {
         'person_id': personId,
         'preferred_species': criteria.preferredSpecies.toList(),
         'preferred_sizes': criteria.preferredSizes.toList(),
+        'preferred_age_groups': criteria.preferredAgeGroups.toList(),
         'desired_traits': criteria.desiredTraits.toList(),
         'avoided_traits': criteria.avoidedTraits.toList(),
         'has_no_experience': criteria.hasNoExperience,

@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/constants/animal_options.dart';
 import 'package:inzynierka/models/animal.dart';
+import 'package:inzynierka/providers/adopter_preferences_provider.dart';
 import 'package:inzynierka/providers/favorite_provider.dart';
 import 'package:inzynierka/screens/adopter/adopter_contact_screen.dart';
 import 'package:inzynierka/utils/age_formatter.dart';
+import 'package:inzynierka/utils/animal_matcher.dart';
+import 'package:inzynierka/widgets/match_level_indicator.dart';
 
 const Set<String> _availableStatuses = {'available', 'reserved'};
 
@@ -13,9 +16,59 @@ class AdopterAnimalDetailScreen extends ConsumerWidget {
 
   const AdopterAnimalDetailScreen({super.key, required this.animal});
 
+  Widget? _buildMatchSection(BuildContext context, WidgetRef ref) {
+    final preferences = ref.watch(adopterPreferencesProvider).valueOrNull;
+    if (preferences == null) return null;
+
+    final result = computeAnimalMatches([animal], preferences.toCriteria()).first;
+    final percent = matchLevelPercent(result.score);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                MatchLevelIndicator(
+                  score: result.score,
+                  size: 40,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Dopasowanie: $percent%',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ],
+            ),
+            if (result.warnings.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              ...result.warnings.map(
+                    (warning) => Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.warning_amber_rounded, size: 18, color: Colors.orange),
+                      const SizedBox(width: 8),
+                      Expanded(child: Text(warning)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isFavorite = ref.watch(favoriteAnimalIdsProvider).contains(animal.id);
+    final matchSection = _buildMatchSection(context, ref);
 
     return Scaffold(
       appBar: AppBar(
@@ -98,6 +151,10 @@ class AdopterAnimalDetailScreen extends ConsumerWidget {
                   '${sizeLabels[animal.size] ?? animal.size}',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
+            if (matchSection != null) ...[
+              const SizedBox(height: 16),
+              matchSection,
+            ],
             if (animal.traits.isNotEmpty) ...[
               const SizedBox(height: 12),
               Wrap(
