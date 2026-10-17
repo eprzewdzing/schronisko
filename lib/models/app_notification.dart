@@ -3,6 +3,7 @@ class AppNotification {
   final String type;
   final String content;
   final String status;
+  final String? relatedId;
   final DateTime createdAt;
 
   AppNotification({
@@ -10,6 +11,7 @@ class AppNotification {
     required this.type,
     required this.content,
     required this.status,
+    this.relatedId,
     required this.createdAt,
   });
 
@@ -19,6 +21,7 @@ class AppNotification {
       type: json['type'] as String,
       content: json['content'] as String,
       status: json['status'] as String,
+      relatedId: json['related_id'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
@@ -29,6 +32,7 @@ class AppNotification {
       'type': type,
       'content': content,
       'status': status,
+      'related_id': relatedId,
       'created_at': createdAt.toIso8601String(),
     };
   }

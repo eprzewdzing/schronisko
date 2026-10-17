@@ -7,7 +7,6 @@ import 'package:inzynierka/providers/auth_provider.dart';
 import 'package:inzynierka/providers/person_provider.dart';
 import 'package:inzynierka/providers/schedule_provider.dart';
 import 'package:inzynierka/providers/visit_provider.dart';
-import 'package:inzynierka/screens/staff/staff_schedule_archive_screen.dart';
 import 'package:inzynierka/screens/staff/staff_schedule_detail_screen.dart';
 import 'package:inzynierka/screens/staff/staff_schedule_form_screen.dart';
 import 'package:inzynierka/screens/staff/staff_visit_detail_screen.dart';
@@ -58,23 +57,6 @@ class _StaffScheduleScreenState extends ConsumerState<StaffScheduleScreen> {
     final isManager = ref.watch(isManagerProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Harmonogram'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.history),
-            tooltip: 'Archiwum',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const StaffScheduleArchiveScreen(),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(

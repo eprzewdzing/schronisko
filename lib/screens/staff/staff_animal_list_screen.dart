@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/providers/staff_animal_filter_provider.dart';
 import 'package:inzynierka/providers/auth_provider.dart';
-import 'package:inzynierka/screens/staff/staff_adoptions_screen.dart';
 import 'package:inzynierka/screens/staff/staff_animal_detail_screen.dart';
 import 'package:inzynierka/screens/staff/staff_animal_form_screen.dart';
 import 'package:inzynierka/utils/animal_sort_option.dart';
@@ -72,28 +71,6 @@ class _StaffAnimalListScreenState extends ConsumerState<StaffAnimalListScreen> {
     final isManager = ref.watch(isManagerProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Zwierzęta'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.favorite),
-            tooltip: 'Zaadoptowane zwierzęta',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const StaffAdoptionsScreen(),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Wyloguj',
-            onPressed: () => ref.read(authServiceProvider).signOut(),
-          ),
-        ],
-      ),
       floatingActionButton: isManager
           ? FloatingActionButton(
         onPressed: () {

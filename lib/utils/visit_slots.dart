@@ -1,4 +1,13 @@
+import 'package:inzynierka/models/visit.dart';
+
 const List<int> visitBookingHours = [9, 10, 11, 12, 13, 14, 15, 16, 17];
+
+const Set<String> editableVisitStatuses = {'pending', 'scheduled'};
+
+bool isVisitEditable(Visit visit) {
+  return editableVisitStatuses.contains(visit.status) &&
+      visit.scheduledAt.isAfter(DateTime.now());
+}
 
 bool isVisitBookingDay(DateTime day) {
   return day.weekday >= DateTime.monday && day.weekday <= DateTime.friday;

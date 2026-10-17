@@ -7,14 +7,16 @@ import 'package:inzynierka/models/visit.dart';
 import 'package:inzynierka/providers/animal_provider.dart';
 import 'package:inzynierka/providers/inquiry_provider.dart';
 import 'package:inzynierka/providers/visit_provider.dart';
+import 'package:inzynierka/screens/adopter/adopter_inquiry_detail_screen.dart';
 import 'package:inzynierka/utils/simple_date_format.dart';
 import 'package:inzynierka/utils/status_color.dart';
+import 'package:inzynierka/utils/visit_slots.dart';
 import 'package:inzynierka/widgets/visit_reschedule_sheet.dart';
 
-const Set<String> _editableVisitStatuses = {'pending', 'scheduled'};
-
 class AdopterRequestsScreen extends ConsumerStatefulWidget {
-  const AdopterRequestsScreen({super.key});
+  final int initialTabIndex;
+
+  const AdopterRequestsScreen({super.key, this.initialTabIndex = 0});
 
   @override
   ConsumerState<AdopterRequestsScreen> createState() => _AdopterRequestsScreenState();
@@ -22,7 +24,8 @@ class AdopterRequestsScreen extends ConsumerStatefulWidget {
 
 class _AdopterRequestsScreenState extends ConsumerState<AdopterRequestsScreen>
     with SingleTickerProviderStateMixin {
-  late final TabController _tabController = TabController(length: 2, vsync: this);
+  late final TabController _tabController =
+  TabController(length: 2, vsync: this, initialIndex: widget.initialTabIndex);
 
   @override
   void dispose() {
@@ -84,44 +87,57 @@ class _InquiriesTab extends ConsumerWidget {
 
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              animal != null ? animal.name : 'Zapytanie ogólne',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                          ),
-                          Chip(
-                            label: Text(
-                              inquiryStatusLabels[inquiry.status] ?? inquiry.status,
-                            ),
-                            backgroundColor:
-                            statusColor(inquiry.status).withValues(alpha: 0.15),
-                            labelStyle: TextStyle(color: statusColor(inquiry.status)),
-                            side: BorderSide.none,
-                          ),
-                        ],
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AdopterInquiryDetailScreen(
+                          inquiry: inquiry,
+                          animalName: animal?.name,
+                        ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        formatDateTime(inquiry.createdAt),
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(inquiry.content),
-                      if (inquiry.answer != null && inquiry.answer!.isNotEmpty) ...[
-                        const Divider(height: 20),
-                        Text('Odpowiedź', style: Theme.of(context).textTheme.labelMedium),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                animal != null ? animal.name : 'Zapytanie ogólne',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            ),
+                            Chip(
+                              label: Text(
+                                inquiryStatusLabels[inquiry.status] ?? inquiry.status,
+                              ),
+                              backgroundColor:
+                              statusColor(inquiry.status).withValues(alpha: 0.15),
+                              labelStyle: TextStyle(color: statusColor(inquiry.status)),
+                              side: BorderSide.none,
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 4),
-                        Text(inquiry.answer!),
+                        Text(
+                          formatDateTime(inquiry.createdAt),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(inquiry.content),
+                        if (inquiry.answer != null && inquiry.answer!.isNotEmpty) ...[
+                          const Divider(height: 20),
+                          Text('Odpowiedź', style: Theme.of(context).textTheme.labelMedium),
+                          const SizedBox(height: 4),
+                          Text(inquiry.answer!),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               );
@@ -266,7 +282,7 @@ class _VisitsTab extends ConsumerWidget {
                         formatDateTime(visit.scheduledAt),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
-                      if (_editableVisitStatuses.contains(visit.status)) ...[
+                      if (isVisitEditable(visit)) ...[
                         const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
@@ -297,4 +313,15 @@ class _VisitsTab extends ConsumerWidget {
       error: (e, _) => Center(child: Text('Błąd podczas ładowania wizyt: $e')),
     );
   }
+}
+void openAdopterRequests(BuildContext context, {int initialTabIndex = 0}) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => Scaffold(
+        appBar: AppBar(title: const Text('Zgłoszenia')),
+        body: AdopterRequestsScreen(initialTabIndex: initialTabIndex),
+      ),
+    ),
+  );
 }

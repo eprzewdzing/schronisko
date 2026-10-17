@@ -10,6 +10,7 @@ import 'package:inzynierka/screens/adopter/adopter_my_posts_screen.dart';
 import 'package:inzynierka/screens/adopter/adopter_post_form_screen.dart';
 import 'package:inzynierka/screens/adopter/adopter_requests_screen.dart';
 import 'package:inzynierka/screens/adopter/adopter_social_screen.dart';
+import 'package:inzynierka/widgets/notification_bell_button.dart';
 
 class AdopterHomeScreen extends ConsumerWidget {
   const AdopterHomeScreen({super.key});
@@ -18,7 +19,6 @@ class AdopterHomeScreen extends ConsumerWidget {
     AdopterAnimalListScreen(),
     AdopterMatchIntroScreen(),
     AdopterContactScreen(),
-    AdopterRequestsScreen(),
     AdopterSocialScreen(),
   ];
 
@@ -26,14 +26,13 @@ class AdopterHomeScreen extends ConsumerWidget {
     'Zwierzęta',
     'Test dopasowania',
     'Kontakt',
-    'Zgłoszenia',
     'Społeczność',
   ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final index = ref.watch(adopterHomeTabIndexProvider);
-    final isSocialTab = index == 4;
+    final isSocialTab = index == 3;
 
     return Scaffold(
       appBar: AppBar(
@@ -62,12 +61,37 @@ class AdopterHomeScreen extends ConsumerWidget {
               );
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Wyloguj',
-            onPressed: () => ref.read(authServiceProvider).signOut(),
-          ),
+          const NotificationBellButton(),
         ],
+      ),
+      drawer: Drawer(
+        child: SafeArea(
+          child: Column(
+            children: [
+              const DrawerHeader(
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Text('Menu', style: TextStyle(fontSize: 20)),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.list_alt),
+                title: const Text('Zgłoszenia'),
+                onTap: () {
+                  Navigator.pop(context);
+                  openAdopterRequests(context);
+                },
+              ),
+              const Spacer(),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text('Wyloguj'),
+                onTap: () => ref.read(authServiceProvider).signOut(),
+              ),
+            ],
+          ),
+        ),
       ),
       body: _screens[index],
       floatingActionButton: isSocialTab
@@ -90,7 +114,6 @@ class AdopterHomeScreen extends ConsumerWidget {
           NavigationDestination(icon: Icon(Icons.pets), label: 'Zwierzęta'),
           NavigationDestination(icon: Icon(Icons.favorite_outline), label: 'Dopasowanie'),
           NavigationDestination(icon: Icon(Icons.mail_outline), label: 'Kontakt'),
-          NavigationDestination(icon: Icon(Icons.list_alt), label: 'Zgłoszenia'),
           NavigationDestination(icon: Icon(Icons.groups_outlined), label: 'Społeczność'),
         ],
       ),

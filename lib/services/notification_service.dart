@@ -1,42 +1,35 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:inzynierka/models/app_notification.dart';
-import 'package:inzynierka/models/notification_recipient.dart';
+import 'package:inzynierka/models/notification_feed_item.dart';
 
 class NotificationService {
   final SupabaseClient _client = Supabase.instance.client;
 
-  Future<List<AppNotification>> getNotifications() async {
-    final response = await _client.from('Notification').select();
-
-    return (response as List)
-        .map((json) => AppNotification.fromJson(json as Map<String, dynamic>))
-        .toList();
-  }
-
-  Future<void> addNotification(Map<String, dynamic> data) async {
-    await _client.from('Notification').insert(data);
-  }
-
-  Future<List<NotificationRecipient>> getRecipientsForPerson(
-      String personId) async {
+  Future<List<NotificationFeedItem>> getNotificationsForPerson(String personId) async {
     final response = await _client
         .from('NotificationRecipient')
-        .select()
+        .select('id, is_read, Notification(id, type, content, status, related_id, created_at)')
         .eq('person_id', personId);
 
-    return (response as List)
-        .map((json) =>
-        NotificationRecipient.fromJson(json as Map<String, dynamic>))
+    final items = (response as List)
+        .map((json) => NotificationFeedItem.fromJson(json as Map<String, dynamic>))
         .toList();
-  }
 
-  Future<void> addRecipients(List<Map<String, dynamic>> data) async {
-    await _client.from('NotificationRecipient').insert(data);
+    items.sort((a, b) => b.notification.createdAt.compareTo(a.notification.createdAt));
+
+    return items;
   }
 
   Future<void> markAsRead(String recipientId) async {
     await _client
         .from('NotificationRecipient')
         .update({'is_read': true}).eq('id', recipientId);
+  }
+
+  Future<void> markAllAsRead(String personId) async {
+    await _client
+        .from('NotificationRecipient')
+        .update({'is_read': true})
+        .eq('person_id', personId)
+        .eq('is_read', false);
   }
 }

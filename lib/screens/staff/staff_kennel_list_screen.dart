@@ -25,16 +25,6 @@ class StaffKennelListScreen extends ConsumerWidget {
     final isManager = ref.watch(isManagerProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Boksy'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Wyloguj',
-            onPressed: () => ref.read(authServiceProvider).signOut(),
-          ),
-        ],
-      ),
       floatingActionButton: isManager
           ? FloatingActionButton(
         onPressed: () {

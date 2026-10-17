@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:inzynierka/constants/visit_options.dart';
 import 'package:inzynierka/models/visit.dart';
 import 'package:inzynierka/providers/visit_provider.dart';
+import 'package:inzynierka/utils/visit_slots.dart';
 import 'package:inzynierka/widgets/visit_reschedule_sheet.dart';
 
 class StaffVisitDetailScreen extends ConsumerStatefulWidget {
@@ -144,7 +145,7 @@ class _StaffVisitDetailScreenState extends ConsumerState<StaffVisitDetailScreen>
             leading: const Icon(Icons.info_outline),
             title: Text(statusLabel),
           ),
-          if (widget.isManager) ...[
+          if (widget.isManager && isVisitEditable(visit)) ...[
             const SizedBox(height: 24),
             FilledButton.icon(
               onPressed: _rescheduleVisit,
