@@ -113,6 +113,10 @@ MatchResult _scoreAnimal(Animal animal, MatchCriteria criteria) {
     warnings.add('To zwierzę wymaga doświadczonego opiekuna.');
   }
 
+  if (animal.traits.contains('costly_to_keep')) {
+    warnings.add(costlyToKeepWarning);
+  }
+
   return MatchResult(animal: animal, score: score, warnings: warnings);
 }
 

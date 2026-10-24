@@ -28,7 +28,9 @@ class AnimalFilterSheet extends ConsumerWidget {
                 children: [
                   Text('Filtry', style: Theme.of(context).textTheme.titleLarge),
                   TextButton(
-                    onPressed: filter.hasActiveFilters ? notifier.clearFilters : null,
+                    onPressed: filter.hasActiveFilters || filter.hasCustomStatuses
+                        ? notifier.clearFilters
+                        : null,
                     child: const Text('Wyczyść filtry'),
                   ),
                 ],
@@ -37,15 +39,17 @@ class AnimalFilterSheet extends ConsumerWidget {
                 child: ListView(
                   controller: scrollController,
                   children: [
-                    _FilterSection(
-                      title: 'Status',
-                      labels: {
-                        for (final entry in animalStatuses.entries)
-                          if (entry.key != 'adopted') entry.key: entry.value,
-                      },
-                      selected: filter.statuses,
-                      onToggle: notifier.toggleStatus,
-                    ),
+                    if (!filter.statuses.contains('quarantine'))
+                      _FilterSection(
+                        title: 'Status',
+                        labels: {
+                          for (final entry in animalStatuses.entries)
+                            if (entry.key != 'adopted' && entry.key != 'quarantine')
+                              entry.key: entry.value,
+                        },
+                        selected: filter.statuses,
+                        onToggle: notifier.toggleStatus,
+                      ),
                     _FilterSection(
                       title: 'Gatunek',
                       labels: speciesLabels,

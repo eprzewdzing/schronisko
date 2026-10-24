@@ -155,6 +155,22 @@ class AdopterAnimalDetailScreen extends ConsumerWidget {
               const SizedBox(height: 16),
               matchSection,
             ],
+            if (matchSection == null && animal.traits.contains('costly_to_keep')) ...[
+              const SizedBox(height: 16),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Icon(Icons.warning_amber_rounded, size: 18, color: Colors.orange),
+                      SizedBox(width: 8),
+                      Expanded(child: Text(costlyToKeepWarning)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
             if (animal.traits.isNotEmpty) ...[
               const SizedBox(height: 12),
               Wrap(

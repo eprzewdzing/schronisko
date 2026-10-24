@@ -19,8 +19,7 @@ class AdoptionService {
   Future<void> createForAnimal(String animalId) async {
     await _client.from('Adoption').insert({
       'animal_id': animalId,
-      'status': 'completed',
-      'start_date': DateTime.now().toIso8601String().split('T')[0],
+      'adoption_date': DateTime.now().toIso8601String().split('T')[0],
     });
   }
 

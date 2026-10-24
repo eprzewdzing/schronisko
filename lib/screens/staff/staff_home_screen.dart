@@ -13,6 +13,7 @@ import 'package:inzynierka/screens/staff/staff_requests_screen.dart';
 import 'package:inzynierka/screens/staff/staff_schedule_archive_screen.dart';
 import 'package:inzynierka/screens/staff/staff_schedule_screen.dart';
 import 'package:inzynierka/screens/staff/staff_social_screen.dart';
+import 'package:inzynierka/screens/staff/staff_stats_screen.dart';
 import 'package:inzynierka/screens/staff/staff_team_screen.dart';
 import 'package:inzynierka/widgets/notification_bell_button.dart';
 
@@ -127,12 +128,18 @@ class _StaffHomeScreenState extends ConsumerState<StaffHomeScreen> {
                 title: const Text('Archiwum harmonogramu'),
                 onTap: () => _navigateTo(const StaffScheduleArchiveScreen()),
               ),
-              if (isManager)
+              if (isManager) ...[
                 ListTile(
                   leading: const Icon(Icons.groups_outlined),
                   title: const Text('Zespół'),
                   onTap: () => _navigateTo(const StaffTeamScreen()),
                 ),
+                ListTile(
+                  leading: const Icon(Icons.bar_chart),
+                  title: const Text('Statystyki i raporty'),
+                  onTap: () => _navigateTo(const StaffStatsScreen()),
+                ),
+              ],
               const Spacer(),
               const Divider(height: 1),
               ListTile(

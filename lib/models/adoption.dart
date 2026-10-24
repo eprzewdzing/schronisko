@@ -1,15 +1,13 @@
 class Adoption {
   final String id;
   final String animalId;
-  final String status;
-  final DateTime startDate;
+  final DateTime adoptionDate;
   final String? notes;
 
   Adoption({
     required this.id,
     required this.animalId,
-    required this.status,
-    required this.startDate,
+    required this.adoptionDate,
     this.notes,
   });
 
@@ -17,8 +15,7 @@ class Adoption {
     return Adoption(
       id: json['id'] as String,
       animalId: json['animal_id'] as String,
-      status: json['status'] as String,
-      startDate: DateTime.parse(json['start_date'] as String),
+      adoptionDate: DateTime.parse(json['adoption_date'] as String),
       notes: json['notes'] as String?,
     );
   }
@@ -27,8 +24,7 @@ class Adoption {
     return {
       'id': id,
       'animal_id': animalId,
-      'status': status,
-      'start_date': startDate.toIso8601String().split('T')[0],
+      'adoption_date': adoptionDate.toIso8601String().split('T')[0],
       'notes': notes,
     };
   }

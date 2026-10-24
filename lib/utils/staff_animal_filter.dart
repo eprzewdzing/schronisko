@@ -25,9 +25,15 @@ class AnimalFilterState {
     this.sortOption = AnimalSortOption.nameAsc,
   });
 
+  bool get hasCustomStatuses {
+    final tabStatuses =
+    statuses.contains('quarantine') ? quarantineStatuses : forAdoptionStatuses;
+    return statuses.length != tabStatuses.length ||
+        !statuses.containsAll(tabStatuses);
+  }
+
   bool get hasActiveFilters =>
-      statuses.isNotEmpty ||
-          species.isNotEmpty ||
+      species.isNotEmpty ||
           genders.isNotEmpty ||
           sizes.isNotEmpty ||
           healthStatuses.isNotEmpty ||
@@ -59,6 +65,9 @@ class AnimalFilterState {
     return AnimalFilterState(
       searchQuery: searchQuery,
       sortOption: sortOption,
+      statuses: statuses.contains('quarantine')
+          ? quarantineStatuses
+          : forAdoptionStatuses,
     );
   }
 }
@@ -73,7 +82,9 @@ List<Animal> applyAnimalFilter(List<Animal> animals, AnimalFilterState filter) {
     if (query.isNotEmpty && !animal.name.toLowerCase().contains(query)) {
       return false;
     }
-    if (filter.statuses.isNotEmpty && !filter.statuses.contains(animal.status)) {
+    final statuses =
+    filter.statuses.isEmpty ? forAdoptionStatuses : filter.statuses;
+    if (!statuses.contains(animal.status)) {
       return false;
     }
     if (filter.species.isNotEmpty && !filter.species.contains(animal.species)) {

@@ -62,7 +62,7 @@ class AdopterAnimalFilterSheet extends ConsumerWidget {
                     ),
                     _FilterSection(
                       title: 'Charakter i cechy',
-                      labels: animalTraits,
+                      labels: Map.of(animalTraits)..remove('costly_to_keep'),
                       selected: filter.traits,
                       onToggle: notifier.toggleTrait,
                     ),

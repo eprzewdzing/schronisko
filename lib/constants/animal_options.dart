@@ -24,7 +24,6 @@ const Map<String, String> intakeTypeLabels = {
 const Map<String, String> healthStatusLabels = {
   'healthy': 'Zdrowy',
   'sick': 'Chory',
-  'in_treatment': 'W trakcie leczenia',
 };
 
 const Map<String, String> animalStatuses = {
@@ -56,4 +55,7 @@ const Map<String, String> animalTraits = {
   'low_grooming_needs': 'Minimalna pielęgnacja',
   'reserved_with_strangers': 'Nieufny wobec obcych',
   'escape_risk': 'Skłonny do uciekania, wymaga zabezpieczonego terenu',
+  'costly_to_keep': 'Może być drogi w utrzymaniu',
 };
+const String costlyToKeepWarning =
+    'To zwierzę może generować wyższe koszty utrzymania (np. leczenie lub specjalne potrzeby).';
